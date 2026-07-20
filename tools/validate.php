@@ -160,7 +160,7 @@ foreach([
 	"'%.12s' * #text",
 	'"size": ["100%", "100%c"]',
 	'"100%cm + 8px"',
-	"('§r' + (#text - ('%.12s' * #text)))"
+	"(('§r' + #text) - ('%.12s' * #text))"
 ] as $requiredHudFragment){
 	if($hudSource === false || !str_contains($hudSource, $requiredHudFragment)){
 		throw new RuntimeException("HUD is missing dynamic palette support: " . $requiredHudFragment);
@@ -270,6 +270,17 @@ if($letterLeadingPayload !== "%toast%ir9//ABCD EFGH IJKL MNOP"){
 }
 if(strlen($numberLeadingPayload) !== strlen($letterLeadingPayload)){
 	throw new RuntimeException("A number-leading payload must not gain protocol width");
+}
+$literalMarkerPayload = \NhanAZ\CustomToast\ToastPayload::encode(
+	\NhanAZ\CustomToast\ToastType::INFO,
+	\NhanAZ\CustomToast\ToastCornerStyle::ROUND,
+	\NhanAZ\CustomToast\ToastColor::GOLD,
+	"%toast% // and | must remain visible in content",
+	"Literal markers",
+	256
+);
+if($literalMarkerPayload !== "%toast%ir6//Literal markers\n%toast% // and | must remain visible in content"){
+	throw new RuntimeException("Literal protocol-like markers must remain unchanged in toast content");
 }
 $messageOnlyPayload = \NhanAZ\CustomToast\ToastPayload::encode(
 	\NhanAZ\CustomToast\ToastType::INFO,

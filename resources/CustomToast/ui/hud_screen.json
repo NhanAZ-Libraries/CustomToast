@@ -147,7 +147,7 @@
             },
             {
               "binding_type": "view",
-              "source_property_name": "('§r' + (#text - ('%.12s' * #text)))",
+              "source_property_name": "(('§r' + #text) - ('%.12s' * #text))",
               "target_property_name": "#toast_text"
             }
           ]
