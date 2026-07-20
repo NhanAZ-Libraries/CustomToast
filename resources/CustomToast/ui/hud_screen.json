@@ -46,6 +46,8 @@
           "$toast_corner_style": "r",
           "$texture_prefix": "textures/ui/custom_toast/background_round_",
           "$toast_has_icon": true,
+          "$toast_has_glyph": false,
+          "$toast_text_prefix_length": 12,
           "$toast_text_offset": [30, 0]
         }
       },
@@ -54,6 +56,8 @@
           "$toast_corner_style": "s",
           "$texture_prefix": "textures/ui/custom_toast/background_square_",
           "$toast_has_icon": true,
+          "$toast_has_glyph": false,
+          "$toast_text_prefix_length": 12,
           "$toast_text_offset": [30, 0]
         }
       },
@@ -62,6 +66,8 @@
           "$toast_corner_style": "r",
           "$texture_prefix": "textures/ui/custom_toast/background_round_",
           "$toast_has_icon": false,
+          "$toast_has_glyph": false,
+          "$toast_text_prefix_length": 12,
           "$toast_text_offset": [5, 0]
         }
       },
@@ -70,7 +76,29 @@
           "$toast_corner_style": "s",
           "$texture_prefix": "textures/ui/custom_toast/background_square_",
           "$toast_has_icon": false,
+          "$toast_has_glyph": false,
+          "$toast_text_prefix_length": 12,
           "$toast_text_offset": [5, 0]
+        }
+      },
+      {
+        "round_with_glyph@hud.custom_toast_variant": {
+          "$toast_corner_style": "r",
+          "$texture_prefix": "textures/ui/custom_toast/background_round_",
+          "$toast_has_icon": false,
+          "$toast_has_glyph": true,
+          "$toast_text_prefix_length": 13,
+          "$toast_text_offset": [30, 0]
+        }
+      },
+      {
+        "square_with_glyph@hud.custom_toast_variant": {
+          "$toast_corner_style": "s",
+          "$texture_prefix": "textures/ui/custom_toast/background_square_",
+          "$toast_has_icon": false,
+          "$toast_has_glyph": true,
+          "$toast_text_prefix_length": 13,
+          "$toast_text_offset": [30, 0]
         }
       }
     ]
@@ -107,7 +135,22 @@
       },
       {
         "binding_type": "view",
-        "source_property_name": "(((('%.7s' * #text) = '%toast%') and ((('%.9s' * #text) - ('%.8s' * #text)) = $toast_corner_style)) and (((((('%.8s' * #text) - ('%.7s' * #text)) = 'i') or ((('%.8s' * #text) - ('%.7s' * #text)) = 's')) or ((('%.8s' * #text) - ('%.7s' * #text)) = 'w')) or ((('%.8s' * #text) - ('%.7s' * #text)) = 'e')) = $toast_has_icon))",
+        "source_property_name": "(('%.8s' * #text) - ('%.7s' * #text))",
+        "target_property_name": "#type_code"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "((((#type_code = 'i') or (#type_code = 's')) or (#type_code = 'w')) or (#type_code = 'e'))",
+        "target_property_name": "#payload_has_icon"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "(#type_code = 'g')",
+        "target_property_name": "#payload_has_glyph"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "((((('%.7s' * #text) = '%toast%') and ((('%.9s' * #text) - ('%.8s' * #text)) = $toast_corner_style)) and (#payload_has_icon = $toast_has_icon)) and (#payload_has_glyph = $toast_has_glyph))",
         "target_property_name": "#visible",
         "binding_condition": "once"
       }
@@ -151,6 +194,34 @@
         }
       },
       {
+        "glyph": {
+          "type": "label",
+          "text": "#toast_glyph",
+          "size": [24, 24],
+          "offset": [3, 0],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "text_alignment": "center",
+          "font_scale_factor": 1.5,
+          "layer": 4,
+          "visible": "$toast_has_glyph",
+          "bindings": [
+            {
+              "binding_name": "#chat_text",
+              "binding_name_override": "#text",
+              "binding_type": "collection",
+              "binding_collection_name": "chat_text_grid",
+              "binding_condition": "once"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(('%.13s' * #text) - ('%.12s' * #text))",
+              "target_property_name": "#toast_glyph"
+            }
+          ]
+        }
+      },
+      {
         "text": {
           "type": "label",
           "text": "#toast_text",
@@ -168,7 +239,7 @@
             },
             {
               "binding_type": "view",
-              "source_property_name": "(('§r' + #text) - ('%.12s' * #text))",
+              "source_property_name": "(('§r' + #text) - (('%.' + $toast_text_prefix_length + 's') * #text))",
               "target_property_name": "#toast_text"
             }
           ]

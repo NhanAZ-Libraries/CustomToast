@@ -160,11 +160,17 @@ foreach([
 	"'%.12s' * #text",
 	'"size": ["100%", "100%c"]',
 	'"100%cm + 8px"',
-	"(('§r' + #text) - ('%.12s' * #text))",
+	"(('§r' + #text) - (('%.' + \$toast_text_prefix_length + 's') * #text))",
 	'"round_without_icon@hud.custom_toast_variant"',
 	'"square_without_icon@hud.custom_toast_variant"',
+	'"round_with_glyph@hud.custom_toast_variant"',
+	'"square_with_glyph@hud.custom_toast_variant"',
 	'"visible": "$toast_has_icon"',
-	'"offset": "$toast_text_offset"'
+	'"visible": "$toast_has_glyph"',
+	'"offset": "$toast_text_offset"',
+	'"$toast_text_prefix_length": 13',
+	'"target_property_name": "#toast_glyph"',
+	"('%.' + \$toast_text_prefix_length + 's') * #text"
 ] as $requiredHudFragment){
 	if($hudSource === false || !str_contains($hudSource, $requiredHudFragment)){
 		throw new RuntimeException("HUD is missing dynamic palette support: " . $requiredHudFragment);
@@ -174,9 +180,10 @@ $customToastSource = file_get_contents($root . "/src/NhanAZ/CustomToast/CustomTo
 if(
 	$customToastSource === false ||
 	!str_contains($customToastSource, "bool \$showIcon = true") ||
-	!str_contains($customToastSource, "?bool \$showIcon = null")
+	!str_contains($customToastSource, "?bool \$showIcon = null") ||
+	!str_contains($customToastSource, "?string \$glyph = null")
 ){
-	throw new RuntimeException("CustomToast public API must expose backward-compatible icon defaults and per-toast overrides");
+	throw new RuntimeException("CustomToast public API must expose backward-compatible image, iconless, and glyph modes");
 }
 $hud = decodeJson($root . "/resources/CustomToast/ui/hud_screen.json");
 $variantBindings = $hud["custom_toast_variant"]["bindings"] ?? null;
@@ -241,7 +248,7 @@ $payload = \NhanAZ\CustomToast\ToastPayload::encode(
 	"Success",
 	256
 );
-if(!str_starts_with($payload, "%toast%sra//Success\n")){
+if(!str_starts_with($payload, "%toast%sra//§lSuccess§r\n")){
 	throw new RuntimeException("Unicode title and line-break payload test failed");
 }
 if(!str_contains($payload, "Phần thưởng | hằng ngày ✓")){
@@ -304,8 +311,39 @@ $iconlessTitlePayload = \NhanAZ\CustomToast\ToastPayload::encode(
 	256,
 	false
 );
-if($iconlessTitlePayload !== "%toast%Wse//Title without an icon"){
+if($iconlessTitlePayload !== "%toast%Wse//§lTitle without an icon§r"){
 	throw new RuntimeException("Iconless title-only payload test failed");
+}
+$glyphPayload = \NhanAZ\CustomToast\ToastPayload::encode(
+	\NhanAZ\CustomToast\ToastType::ERROR,
+	\NhanAZ\CustomToast\ToastCornerStyle::ROUND,
+	\NhanAZ\CustomToast\ToastColor::AUTO,
+	"Glyph message",
+	"Glyph title",
+	256,
+	true,
+	""
+);
+if($glyphPayload !== "%toast%grc//§lGlyph title§r\nGlyph message"){
+	throw new RuntimeException("Unicode glyph payload test failed");
+}
+$invalidGlyphRejected = false;
+try{
+	\NhanAZ\CustomToast\ToastPayload::encode(
+		\NhanAZ\CustomToast\ToastType::INFO,
+		\NhanAZ\CustomToast\ToastCornerStyle::ROUND,
+		\NhanAZ\CustomToast\ToastColor::AUTO,
+		"Invalid glyph",
+		null,
+		256,
+		true,
+		""
+	);
+}catch(InvalidArgumentException){
+	$invalidGlyphRejected = true;
+}
+if(!$invalidGlyphRejected){
+	throw new RuntimeException("A glyph must be exactly one Unicode code point");
 }
 $literalMarkerPayload = \NhanAZ\CustomToast\ToastPayload::encode(
 	\NhanAZ\CustomToast\ToastType::INFO,
@@ -315,7 +353,7 @@ $literalMarkerPayload = \NhanAZ\CustomToast\ToastPayload::encode(
 	"Literal markers",
 	256
 );
-if($literalMarkerPayload !== "%toast%ir6//Literal markers\n%toast% // and | must remain visible in content"){
+if($literalMarkerPayload !== "%toast%ir6//§lLiteral markers§r\n%toast% // and | must remain visible in content"){
 	throw new RuntimeException("Literal protocol-like markers must remain unchanged in toast content");
 }
 $messageOnlyPayload = \NhanAZ\CustomToast\ToastPayload::encode(
@@ -337,7 +375,7 @@ $multilinePayload = \NhanAZ\CustomToast\ToastPayload::encode(
 	"Multi\nline title",
 	256
 );
-if($multilinePayload !== "%toast%ir9//Multi line title\nLine 1\nLine 2\n\nLine 4"){
+if($multilinePayload !== "%toast%ir9//§lMulti line title§r\nLine 1\nLine 2\n\nLine 4"){
 	throw new RuntimeException("Repeated message line breaks must be preserved while title line breaks are normalised");
 }
 

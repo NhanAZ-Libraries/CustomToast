@@ -6,6 +6,7 @@ namespace NhanAZ\CustomToast;
 
 use InvalidArgumentException;
 use function mb_strcut;
+use function mb_strlen;
 use function str_ends_with;
 use function str_replace;
 use function strlen;
@@ -19,9 +20,12 @@ final class ToastPayload{
 
 	private function __construct(){}
 
-	public static function encode(ToastType $type, ToastCornerStyle $cornerStyle, ToastColor $color, string $message, ?string $title, int $maxMessageBytes, bool $showIcon = true) : string{
+	public static function encode(ToastType $type, ToastCornerStyle $cornerStyle, ToastColor $color, string $message, ?string $title, int $maxMessageBytes, bool $showIcon = true, ?string $glyph = null) : string{
 		if($maxMessageBytes < 1){
 			throw new InvalidArgumentException("maxMessageBytes must be at least 1");
+		}
+		if($glyph !== null && (mb_strlen($glyph, "UTF-8") !== 1 || $glyph === "\r" || $glyph === "\n" || $glyph === "\t")){
+			throw new InvalidArgumentException("glyph must be exactly one visible Unicode code point");
 		}
 
 		$message = self::truncateUtf8(self::normaliseMessage($message), $maxMessageBytes);
@@ -30,9 +34,9 @@ final class ToastPayload{
 			throw new InvalidArgumentException("A toast must contain a title or a message");
 		}
 
-		$text = $title === "" ? $message : ($message === "" ? $title : $title . "\n" . $message);
-		$typeCode = $showIcon ? $type->value : strtoupper($type->value);
-		return self::MARKER . $typeCode . $cornerStyle->value . $color->resolve($type)->value . self::PREFIX_SEPARATOR . $text;
+		$text = $title === "" ? $message : ($message === "" ? "§l" . $title . "§r" : "§l" . $title . "§r\n" . $message);
+		$typeCode = $glyph !== null ? "g" : ($showIcon ? $type->value : strtoupper($type->value));
+		return self::MARKER . $typeCode . $cornerStyle->value . $color->resolve($type)->value . self::PREFIX_SEPARATOR . ($glyph ?? "") . $text;
 	}
 
 	private static function normaliseTitle(string $text) : string{

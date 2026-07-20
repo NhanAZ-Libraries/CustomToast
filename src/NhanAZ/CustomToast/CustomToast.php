@@ -52,7 +52,8 @@ final class CustomToast{
 		?bool $playSound = null,
 		?ToastCornerStyle $cornerStyle = null,
 		?ToastColor $color = null,
-		?bool $showIcon = null
+		?bool $showIcon = null,
+		?string $glyph = null
 	) : void{
 		$this->assertOpen();
 		$payload = ToastPayload::encode(
@@ -62,7 +63,8 @@ final class CustomToast{
 			$message,
 			$title,
 			$this->maxMessageBytes,
-			$showIcon ?? $this->showIcon
+			$showIcon ?? $this->showIcon,
+			$glyph
 		);
 		if($playSound ?? $this->playSound){
 			$position = $player->getPosition();
@@ -94,12 +96,13 @@ final class CustomToast{
 		?bool $playSound = null,
 		?ToastCornerStyle $cornerStyle = null,
 		?ToastColor $color = null,
-		?bool $showIcon = null
+		?bool $showIcon = null,
+		?string $glyph = null
 	) : int{
 		$this->assertOpen();
 		$count = 0;
 		foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-			$this->send($player, $type, $message, $title, $playSound, $cornerStyle, $color, $showIcon);
+			$this->send($player, $type, $message, $title, $playSound, $cornerStyle, $color, $showIcon, $glyph);
 			++$count;
 		}
 		return $count;
