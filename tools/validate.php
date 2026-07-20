@@ -151,7 +151,17 @@ foreach(["round", "square"] as $corner){
 }
 
 $hudSource = file_get_contents($root . "/resources/CustomToast/ui/hud_screen.json");
-foreach(['"nineslice_size": 4', '"target_property_name": "#color_code"', '($texture_prefix + #color_code)', '"target_property_name": "#texture"', "'%.10s' * #text", "'%.12s' * #text"] as $requiredHudFragment){
+foreach([
+	'"nineslice_size": 4',
+	'"target_property_name": "#color_code"',
+	'($texture_prefix + #color_code)',
+	'"target_property_name": "#texture"',
+	"'%.10s' * #text",
+	"'%.12s' * #text",
+	'"size": ["100%", "100%c"]',
+	'"100%cm + 8px"',
+	"('§r' + (#text - ('%.12s' * #text)))"
+] as $requiredHudFragment){
 	if($hudSource === false || !str_contains($hudSource, $requiredHudFragment)){
 		throw new RuntimeException("HUD is missing dynamic palette support: " . $requiredHudFragment);
 	}
@@ -260,6 +270,28 @@ if($letterLeadingPayload !== "%toast%ir9//ABCD EFGH IJKL MNOP"){
 }
 if(strlen($numberLeadingPayload) !== strlen($letterLeadingPayload)){
 	throw new RuntimeException("A number-leading payload must not gain protocol width");
+}
+$messageOnlyPayload = \NhanAZ\CustomToast\ToastPayload::encode(
+	\NhanAZ\CustomToast\ToastType::INFO,
+	\NhanAZ\CustomToast\ToastCornerStyle::ROUND,
+	\NhanAZ\CustomToast\ToastColor::AUTO,
+	"Message only",
+	null,
+	256
+);
+if($messageOnlyPayload !== "%toast%ir9//Message only"){
+	throw new RuntimeException("Message-only payload test failed");
+}
+$multilinePayload = \NhanAZ\CustomToast\ToastPayload::encode(
+	\NhanAZ\CustomToast\ToastType::INFO,
+	\NhanAZ\CustomToast\ToastCornerStyle::ROUND,
+	\NhanAZ\CustomToast\ToastColor::AUTO,
+	"Line 1\r\nLine 2\n\nLine 4",
+	"Multi\nline title",
+	256
+);
+if($multilinePayload !== "%toast%ir9//Multi line title\nLine 1\nLine 2\n\nLine 4"){
+	throw new RuntimeException("Repeated message line breaks must be preserved while title line breaks are normalised");
 }
 
 echo "CustomToast validation passed." . PHP_EOL;

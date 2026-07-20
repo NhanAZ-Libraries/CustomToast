@@ -37,7 +37,7 @@
   "custom_toast_item": {
     "type": "panel",
     "layer": 1,
-    "size": ["100%", 32],
+    "size": ["100%", "100%c"],
     "anchor_from": "top_right",
     "anchor_to": "top_right",
     "controls": [
@@ -59,7 +59,8 @@
     "type": "image",
     "texture": "#texture",
     "nineslice_size": 4,
-    "size": ["100%c + 12px", "100%"],
+    "size": ["100%c + 12px", "100%cm + 8px"],
+    "min_size": [32, 32],
     "anchor_from": "top_right",
     "anchor_to": "top_right",
     "inherit_max_sibling_width": true,
@@ -146,7 +147,7 @@
             },
             {
               "binding_type": "view",
-              "source_property_name": "(#text - ('%.12s' * #text))",
+              "source_property_name": "('§r' + (#text - ('%.12s' * #text)))",
               "target_property_name": "#toast_text"
             }
           ]

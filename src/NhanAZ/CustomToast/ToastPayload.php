@@ -23,8 +23,8 @@ final class ToastPayload{
 			throw new InvalidArgumentException("maxMessageBytes must be at least 1");
 		}
 
-		$message = self::truncateUtf8(self::normaliseLine($message), $maxMessageBytes);
-		$title = $title === null ? "" : self::truncateUtf8(self::normaliseLine($title), self::MAX_TITLE_BYTES);
+		$message = self::truncateUtf8(self::normaliseMessage($message), $maxMessageBytes);
+		$title = $title === null ? "" : self::truncateUtf8(self::normaliseTitle($title), self::MAX_TITLE_BYTES);
 		if($title === "" && $message === ""){
 			throw new InvalidArgumentException("A toast must contain a title or a message");
 		}
@@ -33,8 +33,12 @@ final class ToastPayload{
 		return self::MARKER . $type->value . $cornerStyle->value . $color->resolve($type)->value . self::PREFIX_SEPARATOR . $text;
 	}
 
-	private static function normaliseLine(string $text) : string{
+	private static function normaliseTitle(string $text) : string{
 		return str_replace(["\r", "\n", "\t"], " ", $text);
+	}
+
+	private static function normaliseMessage(string $text) : string{
+		return str_replace("\t", " ", str_replace(["\r\n", "\r"], "\n", $text));
 	}
 
 	private static function truncateUtf8(string $text, int $maxBytes) : string{

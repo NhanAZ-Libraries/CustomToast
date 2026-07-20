@@ -127,6 +127,17 @@ $this->customToast->send(
 );
 ```
 
+Messages may contain any number of explicit line breaks. The toast background grows vertically to fit the rendered lines:
+
+```php
+$this->customToast->send(
+    $player,
+    ToastType::SUCCESS,
+    "First reward\nSecond reward\n\nCome back tomorrow.",
+    "Daily rewards"
+);
+```
+
 Send a toast to everyone online:
 
 ```php
@@ -177,7 +188,7 @@ $customToast->send(
 
 Pass `null` as the title for a message-only toast. The three optional final arguments override the default sound, corner, and color settings for that one toast.
 
-The title is limited to 96 UTF-8 bytes. Newline and tab characters inside an individual field are converted to spaces, so the layout remains a predictable maximum of two lines.
+The title is limited to 96 UTF-8 bytes and remains a single line; newline and tab characters in it are converted to spaces. Message line breaks are preserved, including repeated line breaks that create an empty line. Tabs in the message are converted to spaces.
 
 ### Broadcasting
 
@@ -322,6 +333,10 @@ Keep source files and configuration files encoded as UTF-8. Do not convert the t
 ### A literal `\\n` is visible
 
 The library API accepts title and message as separate arguments. Converting a command-line `\\n` separator is the responsibility of the host plugin. The example plugin demonstrates a safe parser. The pipe character `|` has no special meaning and remains part of the message.
+
+### Text beginning with a number is missing
+
+Use the current resource pack. Older builds allowed Bedrock JSON UI to interpret number-leading text as a numeric expression. The current binding forces the extracted payload back to a string, so both `1 reward` and `Reward 1` render normally.
 
 ## License
 
