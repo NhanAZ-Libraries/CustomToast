@@ -1,0 +1,197 @@
+{
+  "namespace": "hud",
+  "chat_grid_item/chat_background": {
+    "bindings": [
+      {
+        "binding_type": "view",
+        "source_property_name": "(not (('%.7s' * #text) = '%toast%'))",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+  "root_panel": {
+    "modifications": [
+      {
+        "array_name": "controls",
+        "operation": "insert_front",
+        "value": [
+          {
+            "custom_toast_factory@hud.custom_toast_factory": {}
+          }
+        ]
+      }
+    ]
+  },
+  "custom_toast_factory": {
+    "type": "stack_panel",
+    "anchor_from": "top_right",
+    "anchor_to": "top_right",
+    "factory": {
+      "name": "chat_item_factory",
+      "max_children_size": 15,
+      "control_ids": {
+        "chat_item": "chat_item@hud.custom_toast_item"
+      }
+    }
+  },
+  "custom_toast_item": {
+    "type": "panel",
+    "layer": 1,
+    "size": ["100%", 32],
+    "anchor_from": "top_right",
+    "anchor_to": "top_right",
+    "controls": [
+      {
+        "round@hud.custom_toast_variant": {
+          "$toast_corner_style": "r",
+          "$texture_prefix": "textures/ui/custom_toast/background_round_"
+        }
+      },
+      {
+        "square@hud.custom_toast_variant": {
+          "$toast_corner_style": "s",
+          "$texture_prefix": "textures/ui/custom_toast/background_square_"
+        }
+      }
+    ]
+  },
+  "custom_toast_variant": {
+    "type": "image",
+    "texture": "#texture",
+    "nineslice_size": 4,
+    "size": ["100%c + 12px", "100%"],
+    "anchor_from": "top_right",
+    "anchor_to": "top_right",
+    "inherit_max_sibling_width": true,
+    "layer": 3,
+    "propagate_alpha": true,
+    "offset": "@hud.custom_toast_move_in",
+    "bindings": [
+      {
+        "binding_name": "#chat_text",
+        "binding_name_override": "#text",
+        "binding_type": "collection",
+        "binding_collection_name": "chat_text_grid",
+        "binding_condition": "once"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "(('%.10s' * #text) - ('%.9s' * #text))",
+        "target_property_name": "#color_code"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "($texture_prefix + #color_code)",
+        "target_property_name": "#texture"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "((('%.7s' * #text) = '%toast%') and ((('%.9s' * #text) - ('%.8s' * #text)) = $toast_corner_style))",
+        "target_property_name": "#visible",
+        "binding_condition": "once"
+      }
+    ],
+    "controls": [
+      {
+        "icon_panel": {
+          "type": "panel",
+          "size": [24, 24],
+          "offset": [3, 0],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "layer": 4,
+          "controls": [
+            {
+              "info@hud.custom_toast_icon": {
+                "$toast_type": "i",
+                "$texture": "textures/ui/custom_toast/icon_info"
+              }
+            },
+            {
+              "success@hud.custom_toast_icon": {
+                "$toast_type": "s",
+                "$texture": "textures/ui/custom_toast/icon_success"
+              }
+            },
+            {
+              "warning@hud.custom_toast_icon": {
+                "$toast_type": "w",
+                "$texture": "textures/ui/custom_toast/icon_warning"
+              }
+            },
+            {
+              "error@hud.custom_toast_icon": {
+                "$toast_type": "e",
+                "$texture": "textures/ui/custom_toast/icon_error"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "text": {
+          "type": "label",
+          "text": "#toast_text",
+          "offset": [30, 0],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_name": "#chat_text",
+              "binding_name_override": "#text",
+              "binding_type": "collection",
+              "binding_collection_name": "chat_text_grid",
+              "binding_condition": "once"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#text - ('%.12s' * #text))",
+              "target_property_name": "#toast_text"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "custom_toast_icon": {
+    "type": "image",
+    "texture": "$texture",
+    "bindings": [
+      {
+        "binding_name": "#chat_text",
+        "binding_name_override": "#text",
+        "binding_type": "collection",
+        "binding_collection_name": "chat_text_grid",
+        "binding_condition": "once"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "((('%.8s' * #text) - ('%.7s' * #text)) = $toast_type)",
+        "target_property_name": "#visible",
+        "binding_condition": "once"
+      }
+    ]
+  },
+  "custom_toast_move_in": {
+    "anim_type": "offset",
+    "duration": 1,
+    "easing": "out_cubic",
+    "from": ["100%", 0],
+    "to": [0, 0],
+    "next": "@hud.custom_toast_wait"
+  },
+  "custom_toast_wait": {
+    "anim_type": "wait",
+    "duration": 5.25,
+    "next": "@hud.custom_toast_move_out"
+  },
+  "custom_toast_move_out": {
+    "anim_type": "offset",
+    "duration": 1,
+    "easing": "out_cubic",
+    "from": [0, 0],
+    "to": ["100%c + 12px", 0],
+    "destroy_at_end": "chat_grid_item"
+  }
+}

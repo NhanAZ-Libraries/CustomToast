@@ -1,0 +1,30 @@
+name: Validate
+
+on:
+  push:
+    branches: [main, non-dev]
+    tags: ["v*"]
+  pull_request:
+    branches: [main, non-dev]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, zip
+
+      - name: Validate Composer metadata
+        run: composer validate --strict --no-check-publish
+
+      - name: Lint PHP sources
+        run: find src tools -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Validate virion and resource pack
+        run: php tools/validate.php

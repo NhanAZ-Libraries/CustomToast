@@ -1,0 +1,9 @@
+---
+name: CustomToast
+version: 1.0.0
+antigen: NhanAZ\CustomToast
+api: [5.0.0]
+authors: [NhanAZ]
+description: A developer-friendly virion for sending custom Bedrock toast notifications
+...
+

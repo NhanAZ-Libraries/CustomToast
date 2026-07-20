@@ -1,0 +1,21 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "CustomToast",
+    "description": "Custom toast notification resources",
+    "uuid": "e4012a52-426c-4cb4-b5c9-2e1e2c4a5dda",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 0]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "a41d9520-e889-4605-9a4a-f521bba3c594",
+      "version": [1, 0, 0]
+    }
+  ],
+  "metadata": {
+    "authors": ["NhanAZ"],
+    "url": "https://github.com/NhanAZ-Libraries/CustomToast"
+  }
+}

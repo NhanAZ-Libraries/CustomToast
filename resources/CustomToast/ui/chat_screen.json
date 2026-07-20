@@ -1,0 +1,18 @@
+{
+  "namespace": "chat",
+  "messages_text/text": {
+    "bindings": [
+      {
+        "binding_type": "view",
+        "source_property_name": "(not (('%.7s' * #text) = '%toast%'))",
+        "target_property_name": "#visible"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not (('%.7s' * #text) = '%toast%'))",
+        "target_property_name": "#enabled"
+      }
+    ]
+  }
+}
+
