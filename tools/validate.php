@@ -161,15 +161,17 @@ foreach([
 	'"size": ["100%", "100%c"]',
 	'"100%cm + 8px"',
 	"(('§r' + #text) - ('%.12s' * #text))",
+	"(('§r' + #text) - ('%.14s' * #text))",
 	'"round_without_icon@hud.custom_toast_variant"',
 	'"square_without_icon@hud.custom_toast_variant"',
-	'"round_with_glyph@hud.custom_toast_variant"',
-	'"square_with_glyph@hud.custom_toast_variant"',
+	'"round_with_glyph@hud.custom_toast_glyph_variant"',
+	'"square_with_glyph@hud.custom_toast_glyph_variant"',
+	'"custom_toast_glyph_variant"',
 	'"visible": "$toast_has_icon"',
-	'"visible": "$toast_has_glyph"',
 	'"offset": "$toast_text_offset"',
 	'"target_property_name": "#toast_glyph"',
-	"(('%.12s' * #text) - ('%.11s' * #text))"
+	'"offset": [38, 0]',
+	"(('%.14s' * #text) - ('%.11s' * #text))"
 ] as $requiredHudFragment){
 	if($hudSource === false || !str_contains($hudSource, $requiredHudFragment)){
 		throw new RuntimeException("HUD is missing required layout support: " . $requiredHudFragment);
@@ -188,26 +190,33 @@ if(
 	throw new RuntimeException("CustomToast public API must expose backward-compatible image, iconless, and glyph modes");
 }
 $hud = decodeJson($root . "/resources/CustomToast/ui/hud_screen.json");
-$variantBindings = $hud["custom_toast_variant"]["bindings"] ?? null;
-if(!is_array($variantBindings)){
-	throw new RuntimeException("HUD custom_toast_variant bindings are missing");
-}
-$capturesItemTextOnce = false;
-foreach($variantBindings as $binding){
-	if(
-		is_array($binding) &&
-		($binding["binding_type"] ?? null) === "collection" &&
-		($binding["binding_name"] ?? null) === "#chat_text" &&
-		($binding["binding_name_override"] ?? null) === "#text" &&
-		($binding["binding_collection_name"] ?? null) === "chat_text_grid" &&
-		($binding["binding_condition"] ?? null) === "once"
-	){
-		$capturesItemTextOnce = true;
-		break;
+
+foreach(["custom_toast_variant", "custom_toast_glyph_variant"] as $variantName){
+	$variantBindings = $hud[$variantName]["bindings"] ?? null;
+	if(!is_array($variantBindings)){
+		throw new RuntimeException("HUD {$variantName} bindings are missing");
+	}
+	$capturesItemTextOnce = false;
+	foreach($variantBindings as $binding){
+		if(
+			is_array($binding) &&
+			($binding["binding_type"] ?? null) === "collection" &&
+			($binding["binding_name"] ?? null) === "#chat_text" &&
+			($binding["binding_name_override"] ?? null) === "#text" &&
+			($binding["binding_collection_name"] ?? null) === "chat_text_grid" &&
+			($binding["binding_condition"] ?? null) === "once"
+		){
+			$capturesItemTextOnce = true;
+			break;
+		}
+	}
+	if(!$capturesItemTextOnce){
+		throw new RuntimeException("{$variantName} must capture its collection text once so queued items keep their own texture");
 	}
 }
-if(!$capturesItemTextOnce){
-	throw new RuntimeException("Each toast must capture its collection text once so queued items keep their own texture");
+$glyphControl = $hud["custom_toast_glyph_variant"]["controls"][0]["glyph"] ?? null;
+if(!is_array($glyphControl) || array_key_exists("size", $glyphControl)){
+	throw new RuntimeException("The glyph label must use its natural content width so Bedrock does not replace wide glyphs with an ellipsis");
 }
 
 $forbiddenNames = ["gala" . "xite", "mega" . "smp"];
@@ -329,6 +338,9 @@ $glyphPayload = \NhanAZ\CustomToast\ToastPayload::encode(
 if($glyphPayload !== "%toast%grc/§lGlyph title§r\nGlyph message"){
 	throw new RuntimeException("Unicode glyph payload test failed");
 }
+if(strlen("%toast%grc/") !== 14){
+	throw new RuntimeException("A three-byte glyph payload header must be exactly 14 bytes");
+}
 $invalidGlyphRejected = false;
 try{
 	\NhanAZ\CustomToast\ToastPayload::encode(
@@ -345,7 +357,27 @@ try{
 	$invalidGlyphRejected = true;
 }
 if(!$invalidGlyphRejected){
-	throw new RuntimeException("A glyph must be exactly one Unicode code point");
+	throw new RuntimeException("A glyph must be exactly one three-byte Unicode code point");
+}
+foreach(["A", "😀"] as $unsupportedGlyph){
+	$unsupportedGlyphRejected = false;
+	try{
+		\NhanAZ\CustomToast\ToastPayload::encode(
+			\NhanAZ\CustomToast\ToastType::INFO,
+			\NhanAZ\CustomToast\ToastCornerStyle::ROUND,
+			\NhanAZ\CustomToast\ToastColor::AUTO,
+			"Unsupported glyph width",
+			null,
+			256,
+			true,
+			$unsupportedGlyph
+		);
+	}catch(InvalidArgumentException){
+		$unsupportedGlyphRejected = true;
+	}
+	if(!$unsupportedGlyphRejected){
+		throw new RuntimeException("Glyphs outside the fixed three-byte payload layout must be rejected");
+	}
 }
 $literalMarkerPayload = \NhanAZ\CustomToast\ToastPayload::encode(
 	\NhanAZ\CustomToast\ToastType::INFO,

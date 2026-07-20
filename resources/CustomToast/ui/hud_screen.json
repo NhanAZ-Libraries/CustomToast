@@ -78,21 +78,15 @@
         }
       },
       {
-        "round_with_glyph@hud.custom_toast_variant": {
+        "round_with_glyph@hud.custom_toast_glyph_variant": {
           "$toast_corner_style": "r",
-          "$texture_prefix": "textures/ui/custom_toast/background_round_",
-          "$toast_has_icon": false,
-          "$toast_has_glyph": true,
-          "$toast_text_offset": [30, 0]
+          "$texture_prefix": "textures/ui/custom_toast/background_round_"
         }
       },
       {
-        "square_with_glyph@hud.custom_toast_variant": {
+        "square_with_glyph@hud.custom_toast_glyph_variant": {
           "$toast_corner_style": "s",
-          "$texture_prefix": "textures/ui/custom_toast/background_square_",
-          "$toast_has_icon": false,
-          "$toast_has_glyph": true,
-          "$toast_text_offset": [30, 0]
+          "$texture_prefix": "textures/ui/custom_toast/background_square_"
         }
       }
     ]
@@ -188,34 +182,6 @@
         }
       },
       {
-        "glyph": {
-          "type": "label",
-          "text": "#toast_glyph",
-          "size": [24, 24],
-          "offset": [3, 0],
-          "anchor_from": "left_middle",
-          "anchor_to": "left_middle",
-          "text_alignment": "center",
-          "font_scale_factor": 1.5,
-          "layer": 4,
-          "visible": "$toast_has_glyph",
-          "bindings": [
-            {
-              "binding_name": "#chat_text",
-              "binding_name_override": "#text",
-              "binding_type": "collection",
-              "binding_collection_name": "chat_text_grid",
-              "binding_condition": "once"
-            },
-            {
-              "binding_type": "view",
-              "source_property_name": "(('%.12s' * #text) - ('%.11s' * #text))",
-              "target_property_name": "#toast_glyph"
-            }
-          ]
-        }
-      },
-      {
         "text": {
           "type": "label",
           "text": "#toast_text",
@@ -234,6 +200,101 @@
             {
               "binding_type": "view",
               "source_property_name": "(('§r' + #text) - ('%.12s' * #text))",
+              "target_property_name": "#toast_text"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "custom_toast_glyph_variant": {
+    "type": "image",
+    "texture": "#texture",
+    "nineslice_size": 4,
+    "size": ["100%c + 12px", "100%cm + 8px"],
+    "min_size": [32, 32],
+    "anchor_from": "top_right",
+    "anchor_to": "top_right",
+    "inherit_max_sibling_width": true,
+    "layer": 3,
+    "propagate_alpha": true,
+    "offset": "@hud.custom_toast_move_in",
+    "bindings": [
+      {
+        "binding_name": "#chat_text",
+        "binding_name_override": "#text",
+        "binding_type": "collection",
+        "binding_collection_name": "chat_text_grid",
+        "binding_condition": "once"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "(('%.10s' * #text) - ('%.9s' * #text))",
+        "target_property_name": "#color_code"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "($texture_prefix + #color_code)",
+        "target_property_name": "#texture"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "(('%.8s' * #text) - ('%.7s' * #text))",
+        "target_property_name": "#type_code"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "(((('%.7s' * #text) = '%toast%') and ((('%.9s' * #text) - ('%.8s' * #text)) = $toast_corner_style)) and (#type_code = 'g'))",
+        "target_property_name": "#visible",
+        "binding_condition": "once"
+      }
+    ],
+    "controls": [
+      {
+        "glyph": {
+          "type": "label",
+          "text": "#toast_glyph",
+          "offset": [3, 0],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "text_alignment": "center",
+          "font_scale_factor": 1.5,
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_name": "#chat_text",
+              "binding_name_override": "#text",
+              "binding_type": "collection",
+              "binding_collection_name": "chat_text_grid",
+              "binding_condition": "once"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(('%.14s' * #text) - ('%.11s' * #text))",
+              "target_property_name": "#toast_glyph"
+            }
+          ]
+        }
+      },
+      {
+        "text": {
+          "type": "label",
+          "text": "#toast_text",
+          "offset": [38, 0],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_name": "#chat_text",
+              "binding_name_override": "#text",
+              "binding_type": "collection",
+              "binding_collection_name": "chat_text_grid",
+              "binding_condition": "once"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(('§r' + #text) - ('%.14s' * #text))",
               "target_property_name": "#toast_text"
             }
           ]

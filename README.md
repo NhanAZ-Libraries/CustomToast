@@ -11,7 +11,7 @@ This repository is the canonical documentation and source for the library. The c
 - Four built-in styles: info, success, warning, and error.
 - Rounded or square corners, configurable globally or per toast.
 - All 29 current Minecraft Bedrock formatting-code colors, plus automatic and neutral helpers.
-- Built-in image icons, no icon, or a custom one-code-point Unicode glyph.
+- Built-in image icons, no icon, or a fixed-width three-byte Unicode glyph.
 - Title-only, message-only, or title-and-message layouts with bold titles.
 - Vietnamese and other UTF-8 text is preserved safely.
 - Minecraft's built-in vanilla toast sound can play with each notification.
@@ -226,7 +226,7 @@ $customToast->send(
 ): void
 ```
 
-Pass `null` as the title for a message-only toast. Pass an empty message with a non-empty title for a title-only toast. The five optional final arguments override the default sound, corner, color, image-icon, and glyph settings for that one toast. Pass `false` as `showIcon` to remove the image and its reserved space. Pass one Unicode code point as `glyph` to replace the image while keeping icon spacing; a glyph takes priority over `showIcon`.
+Pass `null` as the title for a message-only toast. Pass an empty message with a non-empty title for a title-only toast. The five optional final arguments override the default sound, corner, color, image-icon, and glyph settings for that one toast. Pass `false` as `showIcon` to remove the image and its reserved space. Pass one three-byte Unicode code point as `glyph` to replace the image while keeping icon spacing; a glyph takes priority over `showIcon`.
 
 The title is limited to 96 UTF-8 bytes, remains a single line, and is automatically wrapped in `§l` and `§r` so it renders bold without leaking formatting into the message. Newline and tab characters in the title are converted to spaces. Message line breaks and formatting codes are preserved, including repeated line breaks that create an empty line. Tabs in the message are converted to spaces.
 
@@ -298,9 +298,9 @@ Each toast has three mutually exclusive icon modes:
 
 - Omit `showIcon` and `glyph` to use the image associated with its `ToastType`.
 - Set `showIcon: false` to use compact text-only padding.
-- Pass `glyph: "…"` to render exactly one Unicode code point in the image slot.
+- Pass `glyph: "…"` to render exactly one three-byte Unicode code point in the image slot.
 
-Glyph rendering depends on the Minecraft client's active fonts and resource packs. Minecraft Bedrock's default private-use glyphs `U+E100` through `U+E10D` can be tested with ``. Other Unicode characters are accepted when they are a single code point, but the client may show a missing-character box if no active font provides them. Multi-code-point emoji sequences are intentionally rejected because JSON UI cannot reliably treat them as one fixed-width icon.
+Glyph rendering depends on the Minecraft client's active fonts and resource packs. Minecraft Bedrock's default private-use glyphs `U+E100` through `U+E10D` can be tested with ``. Custom resource-pack emojis should use a three-byte Basic Multilingual Plane code point, normally from a private-use range such as the `E0`, `E1`, or later glyph pages. The pack must provide the matching `font/glyph_<page>.png` spritesheet. ASCII characters, four-byte emoji, and multi-code-point emoji sequences are rejected so every glyph payload keeps the fixed byte width required by the client-safe JSON UI bindings.
 
 ## Corner styles
 
@@ -339,7 +339,7 @@ Use the `cornerStyle` argument of `create()` to select a plugin default. Use the
 
 At startup, CustomToast collects the injected `resources/CustomToast` directory, creates `CustomToast.mcpack` in the host plugin's data directory, and places that pack at the top of PocketMine-MP's resource-pack stack.
 
-When `send()` is called, the library sends a system `TextPacket` containing a private marker, a one-character presentation code, corner and color fields, an optional one-code-point glyph, and the display text. The custom HUD consumes marked messages, hides them from normal chat, builds the matching texture path, selects an image, glyph, or compact text-only layout, and runs the enter/wait/exit animation. If sound is enabled, a `PlaySoundPacket` for Minecraft Bedrock's built-in `random.toast` event is sent immediately before the text packet. No custom audio file or sound definition is bundled.
+When `send()` is called, the library sends a system `TextPacket` containing a private marker, a one-character presentation code, corner and color fields, an optional fixed-width glyph, and the display text. The custom HUD consumes marked messages, hides them from normal chat, builds the matching texture path, selects an image, glyph, or compact text-only layout, and runs the enter/wait/exit animation. If sound is enabled, a `PlaySoundPacket` for Minecraft Bedrock's built-in `random.toast` event is sent immediately before the text packet. No custom audio file or sound definition is bundled.
 
 The marker format is an implementation detail. Plugin code should always call the public API instead of assembling packets manually.
 

@@ -24,8 +24,8 @@ final class ToastPayload{
 		if($maxMessageBytes < 1){
 			throw new InvalidArgumentException("maxMessageBytes must be at least 1");
 		}
-		if($glyph !== null && (mb_strlen($glyph, "UTF-8") !== 1 || $glyph === "\r" || $glyph === "\n" || $glyph === "\t")){
-			throw new InvalidArgumentException("glyph must be exactly one visible Unicode code point");
+		if($glyph !== null && (mb_strlen($glyph, "UTF-8") !== 1 || strlen($glyph) !== 3 || $glyph === "\r" || $glyph === "\n" || $glyph === "\t")){
+			throw new InvalidArgumentException("glyph must be exactly one three-byte Unicode code point");
 		}
 
 		$message = self::truncateUtf8(self::normaliseMessage($message), $maxMessageBytes);
