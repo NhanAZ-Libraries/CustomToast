@@ -2,10 +2,10 @@ name: Validate
 
 on:
   push:
-    branches: [main, non-dev]
+    branches: [main]
     tags: ["v*"]
   pull_request:
-    branches: [main, non-dev]
+    branches: [main]
 
 jobs:
   validate:

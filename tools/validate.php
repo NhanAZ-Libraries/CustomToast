@@ -24,8 +24,7 @@ $requiredFiles = [
 	"resources/CustomToast/textures/ui/custom_toast/background_round.png",
 	"resources/CustomToast/textures/ui/custom_toast/background_round.json",
 	"resources/CustomToast/textures/ui/custom_toast/background_square.png",
-	"resources/CustomToast/textures/ui/custom_toast/background_square.json",
-	"tools/generate-palette-assets.php"
+	"resources/CustomToast/textures/ui/custom_toast/background_square.json"
 ];
 
 foreach($requiredFiles as $relative){

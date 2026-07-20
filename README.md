@@ -356,7 +356,7 @@ resources/CustomToast/textures/ui/custom_toast/icon_warning.png
 resources/CustomToast/textures/ui/custom_toast/icon_error.png
 ```
 
-There are 58 active background files: 29 official color names for each corner style. For example, `background_round_green.png` is rounded green and `background_square_material_resin.png` is square Resin. All are 12x12 nine-slice textures with a four-pixel slice. `background_round.png` and `background_square.png` are neutral source templates for `tools/generate-palette-assets.php`; the generator creates missing variants without overwriting hand-edited files. During pack compilation, the readable names are mapped to compact internal aliases used by JSON UI. The notification sound comes from the Bedrock client through the built-in `random.toast` event, so visual themes do not need to ship or license an audio file.
+There are 58 active background files: 29 official color names for each corner style. For example, `background_round_green.png` is rounded green and `background_square_material_resin.png` is square Resin. All are 12x12 nine-slice textures with a four-pixel slice. `background_round.png` and `background_square.png` are the neutral variants. During pack compilation, the readable names are mapped to compact internal aliases used by JSON UI. The notification sound comes from the Bedrock client through the built-in `random.toast` event, so visual themes do not need to ship or license an audio file.
 
 See [ASSETS.md](ASSETS.md) before distributing the bundled presentation assets.
 

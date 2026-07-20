@@ -14,6 +14,6 @@ Project artwork:
 
 Toast audio is not bundled. The library plays Minecraft Bedrock's built-in `random.toast` sound event.
 
-The neutral round and square source templates remain in the same directory. Run `php tools/generate-palette-assets.php` to create only missing Minecraft color variants. Existing PNGs are preserved so hand-edited artwork is never replaced accidentally.
+The neutral round and square variants remain in the same directory as the colored backgrounds.
 
 `resources/CustomToast/pack_icon.png` uses the same project icon as CustomEmojis.
