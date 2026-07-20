@@ -22,6 +22,7 @@ final class CustomToast{
 		private readonly bool $playSound,
 		private readonly ToastCornerStyle $cornerStyle,
 		private readonly ToastColor $color,
+		private readonly bool $showIcon,
 		private readonly bool $forceResourcePack,
 		private readonly string $resourcePackPath
 	){}
@@ -32,14 +33,15 @@ final class CustomToast{
 		int $maxMessageBytes = 256,
 		bool $playSound = true,
 		ToastCornerStyle $cornerStyle = ToastCornerStyle::ROUND,
-		ToastColor $color = ToastColor::AUTO
+		ToastColor $color = ToastColor::AUTO,
+		bool $showIcon = true
 	) : self{
 		if($maxMessageBytes < 1){
 			throw new InvalidArgumentException("maxMessageBytes must be at least 1");
 		}
 
 		$resourcePackPath = CustomToastRuntime::acquire($plugin, $forceResourcePack);
-		return new self($plugin, $maxMessageBytes, $playSound, $cornerStyle, $color, $forceResourcePack, $resourcePackPath);
+		return new self($plugin, $maxMessageBytes, $playSound, $cornerStyle, $color, $showIcon, $forceResourcePack, $resourcePackPath);
 	}
 
 	public function send(
@@ -49,7 +51,8 @@ final class CustomToast{
 		?string $title = null,
 		?bool $playSound = null,
 		?ToastCornerStyle $cornerStyle = null,
-		?ToastColor $color = null
+		?ToastColor $color = null,
+		?bool $showIcon = null
 	) : void{
 		$this->assertOpen();
 		$payload = ToastPayload::encode(
@@ -58,7 +61,8 @@ final class CustomToast{
 			$color ?? $this->color,
 			$message,
 			$title,
-			$this->maxMessageBytes
+			$this->maxMessageBytes,
+			$showIcon ?? $this->showIcon
 		);
 		if($playSound ?? $this->playSound){
 			$position = $player->getPosition();
@@ -89,12 +93,13 @@ final class CustomToast{
 		?string $title = null,
 		?bool $playSound = null,
 		?ToastCornerStyle $cornerStyle = null,
-		?ToastColor $color = null
+		?ToastColor $color = null,
+		?bool $showIcon = null
 	) : int{
 		$this->assertOpen();
 		$count = 0;
 		foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-			$this->send($player, $type, $message, $title, $playSound, $cornerStyle, $color);
+			$this->send($player, $type, $message, $title, $playSound, $cornerStyle, $color, $showIcon);
 			++$count;
 		}
 		return $count;

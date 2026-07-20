@@ -44,13 +44,33 @@
       {
         "round@hud.custom_toast_variant": {
           "$toast_corner_style": "r",
-          "$texture_prefix": "textures/ui/custom_toast/background_round_"
+          "$texture_prefix": "textures/ui/custom_toast/background_round_",
+          "$toast_has_icon": true,
+          "$toast_text_offset": [30, 0]
         }
       },
       {
         "square@hud.custom_toast_variant": {
           "$toast_corner_style": "s",
-          "$texture_prefix": "textures/ui/custom_toast/background_square_"
+          "$texture_prefix": "textures/ui/custom_toast/background_square_",
+          "$toast_has_icon": true,
+          "$toast_text_offset": [30, 0]
+        }
+      },
+      {
+        "round_without_icon@hud.custom_toast_variant": {
+          "$toast_corner_style": "r",
+          "$texture_prefix": "textures/ui/custom_toast/background_round_",
+          "$toast_has_icon": false,
+          "$toast_text_offset": [5, 0]
+        }
+      },
+      {
+        "square_without_icon@hud.custom_toast_variant": {
+          "$toast_corner_style": "s",
+          "$texture_prefix": "textures/ui/custom_toast/background_square_",
+          "$toast_has_icon": false,
+          "$toast_text_offset": [5, 0]
         }
       }
     ]
@@ -87,7 +107,7 @@
       },
       {
         "binding_type": "view",
-        "source_property_name": "((('%.7s' * #text) = '%toast%') and ((('%.9s' * #text) - ('%.8s' * #text)) = $toast_corner_style))",
+        "source_property_name": "(((('%.7s' * #text) = '%toast%') and ((('%.9s' * #text) - ('%.8s' * #text)) = $toast_corner_style)) and (((((('%.8s' * #text) - ('%.7s' * #text)) = 'i') or ((('%.8s' * #text) - ('%.7s' * #text)) = 's')) or ((('%.8s' * #text) - ('%.7s' * #text)) = 'w')) or ((('%.8s' * #text) - ('%.7s' * #text)) = 'e')) = $toast_has_icon))",
         "target_property_name": "#visible",
         "binding_condition": "once"
       }
@@ -101,6 +121,7 @@
           "anchor_from": "left_middle",
           "anchor_to": "left_middle",
           "layer": 4,
+          "visible": "$toast_has_icon",
           "controls": [
             {
               "info@hud.custom_toast_icon": {
@@ -133,7 +154,7 @@
         "text": {
           "type": "label",
           "text": "#toast_text",
-          "offset": [30, 0],
+          "offset": "$toast_text_offset",
           "anchor_from": "left_middle",
           "anchor_to": "left_middle",
           "layer": 4,

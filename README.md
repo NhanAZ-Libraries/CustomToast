@@ -11,7 +11,7 @@ This repository is the canonical documentation and source for the library. The c
 - Four built-in styles: info, success, warning, and error.
 - Rounded or square corners, configurable globally or per toast.
 - All 29 current Minecraft Bedrock formatting-code colors, plus automatic and neutral helpers.
-- Message-only or title-and-message layouts.
+- Optional icons with title-only, message-only, or title-and-message layouts.
 - Vietnamese and other UTF-8 text is preserved safely.
 - Minecraft's built-in vanilla toast sound can play with each notification.
 - Multiple toasts can be queued by the Bedrock UI.
@@ -127,6 +127,29 @@ $this->customToast->send(
 );
 ```
 
+Send a compact text-only toast without an icon:
+
+```php
+$this->customToast->send(
+    player: $player,
+    type: ToastType::INFO,
+    message: "A plain notification without an icon.",
+    showIcon: false
+);
+```
+
+A title may also be used without a message or icon:
+
+```php
+$this->customToast->send(
+    player: $player,
+    type: ToastType::INFO,
+    message: "",
+    title: "Maintenance complete",
+    showIcon: false
+);
+```
+
 Messages may contain any number of explicit line breaks. The toast background grows vertically to fit the rendered lines:
 
 ```php
@@ -159,7 +182,8 @@ CustomToast::create(
     int $maxMessageBytes = 256,
     bool $playSound = true,
     ToastCornerStyle $cornerStyle = ToastCornerStyle::ROUND,
-    ToastColor $color = ToastColor::AUTO
+    ToastColor $color = ToastColor::AUTO,
+    bool $showIcon = true
 ): CustomToast
 ```
 
@@ -169,6 +193,7 @@ CustomToast::create(
 - `playSound` is the default sound behavior for every toast.
 - `cornerStyle` is the default background shape for every toast.
 - `color` is the default background color. `AUTO` chooses a color from the toast type.
+- `showIcon` selects whether to show the type icon by default. Iconless toasts automatically use compact left padding.
 
 Create the service once, during startup, before players join. Registering a resource pack after a player has joined will not make that client download it automatically.
 
@@ -182,11 +207,12 @@ $customToast->send(
     ?string $title = null,
     ?bool $playSound = null,
     ?ToastCornerStyle $cornerStyle = null,
-    ?ToastColor $color = null
+    ?ToastColor $color = null,
+    ?bool $showIcon = null
 ): void
 ```
 
-Pass `null` as the title for a message-only toast. The three optional final arguments override the default sound, corner, and color settings for that one toast.
+Pass `null` as the title for a message-only toast. Pass an empty message with a non-empty title for a title-only toast. The four optional final arguments override the default sound, corner, color, and icon settings for that one toast. Pass `false` as `showIcon` to remove the icon and its reserved space.
 
 The title is limited to 96 UTF-8 bytes and remains a single line; newline and tab characters in it are converted to spaces. Message line breaks are preserved, including repeated line breaks that create an empty line. Tabs in the message are converted to spaces.
 
@@ -199,7 +225,8 @@ $customToast->broadcast(
     ?string $title = null,
     ?bool $playSound = null,
     ?ToastCornerStyle $cornerStyle = null,
-    ?ToastColor $color = null
+    ?ToastColor $color = null,
+    ?bool $showIcon = null
 ): int
 ```
 
@@ -287,7 +314,7 @@ Use the `cornerStyle` argument of `create()` to select a plugin default. Use the
 
 At startup, CustomToast collects the injected `resources/CustomToast` directory, creates `CustomToast.mcpack` in the host plugin's data directory, and places that pack at the top of PocketMine-MP's resource-pack stack.
 
-When `send()` is called, the library sends a system `TextPacket` containing a private marker, one-character type, corner, and color fields, followed by the display text. The custom HUD consumes marked messages, hides them from normal chat, builds the matching texture path, selects the icon, and runs the enter/wait/exit animation. If sound is enabled, a `PlaySoundPacket` for Minecraft Bedrock's built-in `random.toast` event is sent immediately before the text packet. No custom audio file or sound definition is bundled.
+When `send()` is called, the library sends a system `TextPacket` containing a private marker, a one-character type code that also carries the icon state, corner and color fields, followed by the display text. The custom HUD consumes marked messages, hides them from normal chat, builds the matching texture path, optionally selects the icon, and runs the enter/wait/exit animation. If sound is enabled, a `PlaySoundPacket` for Minecraft Bedrock's built-in `random.toast` event is sent immediately before the text packet. No custom audio file or sound definition is bundled.
 
 The marker format is an implementation detail. Plugin code should always call the public API instead of assembling packets manually.
 

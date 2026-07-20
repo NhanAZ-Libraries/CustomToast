@@ -9,6 +9,7 @@ use function mb_strcut;
 use function str_ends_with;
 use function str_replace;
 use function strlen;
+use function strtoupper;
 
 /** @internal */
 final class ToastPayload{
@@ -18,7 +19,7 @@ final class ToastPayload{
 
 	private function __construct(){}
 
-	public static function encode(ToastType $type, ToastCornerStyle $cornerStyle, ToastColor $color, string $message, ?string $title, int $maxMessageBytes) : string{
+	public static function encode(ToastType $type, ToastCornerStyle $cornerStyle, ToastColor $color, string $message, ?string $title, int $maxMessageBytes, bool $showIcon = true) : string{
 		if($maxMessageBytes < 1){
 			throw new InvalidArgumentException("maxMessageBytes must be at least 1");
 		}
@@ -30,7 +31,8 @@ final class ToastPayload{
 		}
 
 		$text = $title === "" ? $message : ($message === "" ? $title : $title . "\n" . $message);
-		return self::MARKER . $type->value . $cornerStyle->value . $color->resolve($type)->value . self::PREFIX_SEPARATOR . $text;
+		$typeCode = $showIcon ? $type->value : strtoupper($type->value);
+		return self::MARKER . $typeCode . $cornerStyle->value . $color->resolve($type)->value . self::PREFIX_SEPARATOR . $text;
 	}
 
 	private static function normaliseTitle(string $text) : string{

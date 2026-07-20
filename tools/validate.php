@@ -160,11 +160,23 @@ foreach([
 	"'%.12s' * #text",
 	'"size": ["100%", "100%c"]',
 	'"100%cm + 8px"',
-	"(('§r' + #text) - ('%.12s' * #text))"
+	"(('§r' + #text) - ('%.12s' * #text))",
+	'"round_without_icon@hud.custom_toast_variant"',
+	'"square_without_icon@hud.custom_toast_variant"',
+	'"visible": "$toast_has_icon"',
+	'"offset": "$toast_text_offset"'
 ] as $requiredHudFragment){
 	if($hudSource === false || !str_contains($hudSource, $requiredHudFragment)){
 		throw new RuntimeException("HUD is missing dynamic palette support: " . $requiredHudFragment);
 	}
+}
+$customToastSource = file_get_contents($root . "/src/NhanAZ/CustomToast/CustomToast.php");
+if(
+	$customToastSource === false ||
+	!str_contains($customToastSource, "bool \$showIcon = true") ||
+	!str_contains($customToastSource, "?bool \$showIcon = null")
+){
+	throw new RuntimeException("CustomToast public API must expose backward-compatible icon defaults and per-toast overrides");
 }
 $hud = decodeJson($root . "/resources/CustomToast/ui/hud_screen.json");
 $variantBindings = $hud["custom_toast_variant"]["bindings"] ?? null;
@@ -270,6 +282,30 @@ if($letterLeadingPayload !== "%toast%ir9//ABCD EFGH IJKL MNOP"){
 }
 if(strlen($numberLeadingPayload) !== strlen($letterLeadingPayload)){
 	throw new RuntimeException("A number-leading payload must not gain protocol width");
+}
+$iconlessMessagePayload = \NhanAZ\CustomToast\ToastPayload::encode(
+	\NhanAZ\CustomToast\ToastType::INFO,
+	\NhanAZ\CustomToast\ToastCornerStyle::ROUND,
+	\NhanAZ\CustomToast\ToastColor::AUTO,
+	"Message without an icon",
+	null,
+	256,
+	false
+);
+if($iconlessMessagePayload !== "%toast%Ir9//Message without an icon"){
+	throw new RuntimeException("Iconless message-only payload test failed");
+}
+$iconlessTitlePayload = \NhanAZ\CustomToast\ToastPayload::encode(
+	\NhanAZ\CustomToast\ToastType::WARNING,
+	\NhanAZ\CustomToast\ToastCornerStyle::SQUARE,
+	\NhanAZ\CustomToast\ToastColor::AUTO,
+	"",
+	"Title without an icon",
+	256,
+	false
+);
+if($iconlessTitlePayload !== "%toast%Wse//Title without an icon"){
+	throw new RuntimeException("Iconless title-only payload test failed");
 }
 $literalMarkerPayload = \NhanAZ\CustomToast\ToastPayload::encode(
 	\NhanAZ\CustomToast\ToastType::INFO,
