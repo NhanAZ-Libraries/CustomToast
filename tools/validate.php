@@ -160,7 +160,7 @@ foreach([
 	"'%.12s' * #text",
 	'"size": ["100%", "100%c"]',
 	'"100%cm + 8px"',
-	"(('§r' + #text) - (('%.' + \$toast_text_prefix_length + 's') * #text))",
+	"(('§r' + #text) - ('%.12s' * #text))",
 	'"round_without_icon@hud.custom_toast_variant"',
 	'"square_without_icon@hud.custom_toast_variant"',
 	'"round_with_glyph@hud.custom_toast_variant"',
@@ -168,13 +168,15 @@ foreach([
 	'"visible": "$toast_has_icon"',
 	'"visible": "$toast_has_glyph"',
 	'"offset": "$toast_text_offset"',
-	'"$toast_text_prefix_length": 13',
 	'"target_property_name": "#toast_glyph"',
-	"('%.' + \$toast_text_prefix_length + 's') * #text"
+	"(('%.12s' * #text) - ('%.11s' * #text))"
 ] as $requiredHudFragment){
 	if($hudSource === false || !str_contains($hudSource, $requiredHudFragment)){
-		throw new RuntimeException("HUD is missing dynamic palette support: " . $requiredHudFragment);
+		throw new RuntimeException("HUD is missing required layout support: " . $requiredHudFragment);
 	}
+}
+if(str_contains($hudSource, '$toast_text_prefix_length') || str_contains($hudSource, "('%.' +")){
+	throw new RuntimeException("HUD must keep the toast prefix at a fixed length for client safety");
 }
 $customToastSource = file_get_contents($root . "/src/NhanAZ/CustomToast/CustomToast.php");
 if(
@@ -324,7 +326,7 @@ $glyphPayload = \NhanAZ\CustomToast\ToastPayload::encode(
 	true,
 	""
 );
-if($glyphPayload !== "%toast%grc//§lGlyph title§r\nGlyph message"){
+if($glyphPayload !== "%toast%grc/§lGlyph title§r\nGlyph message"){
 	throw new RuntimeException("Unicode glyph payload test failed");
 }
 $invalidGlyphRejected = false;

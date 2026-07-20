@@ -36,7 +36,8 @@ final class ToastPayload{
 
 		$text = $title === "" ? $message : ($message === "" ? "§l" . $title . "§r" : "§l" . $title . "§r\n" . $message);
 		$typeCode = $glyph !== null ? "g" : ($showIcon ? $type->value : strtoupper($type->value));
-		return self::MARKER . $typeCode . $cornerStyle->value . $color->resolve($type)->value . self::PREFIX_SEPARATOR . ($glyph ?? "") . $text;
+		$separator = $glyph === null ? self::PREFIX_SEPARATOR : "/" . $glyph;
+		return self::MARKER . $typeCode . $cornerStyle->value . $color->resolve($type)->value . $separator . $text;
 	}
 
 	private static function normaliseTitle(string $text) : string{
