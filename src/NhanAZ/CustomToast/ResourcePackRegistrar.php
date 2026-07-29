@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace NhanAZ\CustomToast;
 
+use FilesystemIterator;
 use pocketmine\plugin\PluginBase;
 use pocketmine\resourcepacks\ZippedResourcePack;
 use pocketmine\utils\Utils;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use RuntimeException;
+use SplFileInfo;
 use Throwable;
 use ZipArchive;
 use function array_unshift;
 use function array_values;
 use function count;
+use function dirname;
 use function file_get_contents;
 use function file_exists;
 use function in_array;
@@ -20,6 +25,7 @@ use function is_dir;
 use function mkdir;
 use function rtrim;
 use function str_starts_with;
+use function str_replace;
 use function strlen;
 use function substr;
 use function unlink;
@@ -154,20 +160,7 @@ final class ResourcePackRegistrar{
 		}
 
 		$entries = [];
-		/** @var array<string, \SplFileInfo> $resources */
-		$resources = $this->plugin->getResources();
-		foreach(Utils::stringifyKeys($resources) as $resourceKey => $resource){
-			$sourceEntry = null;
-			foreach(self::RESOURCE_PREFIXES as $resourcePrefix){
-				if(str_starts_with($resourceKey, $resourcePrefix)){
-					$sourceEntry = substr($resourceKey, strlen($resourcePrefix));
-					break;
-				}
-			}
-			if($sourceEntry === null){
-				continue;
-			}
-
+		foreach($this->resourceFiles() as $sourceEntry => $resource){
 			$entry = self::archiveEntryFor($sourceEntry);
 			if($entry === null){
 				continue;
@@ -217,6 +210,48 @@ final class ResourcePackRegistrar{
 		}
 
 		return $packPath;
+	}
+
+	/** @return array<string, SplFileInfo> */
+	private function resourceFiles() : array{
+		$found = [];
+		/** @var array<string, SplFileInfo> $pluginResources */
+		$pluginResources = $this->plugin->getResources();
+		foreach(Utils::stringifyKeys($pluginResources) as $resourceKey => $resource){
+			foreach(self::RESOURCE_PREFIXES as $resourcePrefix){
+				if(!str_starts_with($resourceKey, $resourcePrefix)){
+					continue;
+				}
+				$sourceEntry = substr($resourceKey, strlen($resourcePrefix));
+				if(isset($found[$sourceEntry])){
+					throw new RuntimeException("Two bundled resources use the same CustomToast path: " . $sourceEntry);
+				}
+				$found[$sourceEntry] = $resource;
+				break;
+			}
+		}
+		if($found !== []){
+			return $found;
+		}
+
+		$sourceRoot = dirname(__DIR__, 3) . "/resources/CustomToast";
+		if(!is_dir($sourceRoot)){
+			return [];
+		}
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($sourceRoot, FilesystemIterator::SKIP_DOTS)
+		);
+		foreach($iterator as $resource){
+			if($resource->isLink()){
+				throw new RuntimeException("CustomToast development resources may not contain symbolic links: " . $resource->getPathname());
+			}
+			if(!$resource->isFile()){
+				continue;
+			}
+			$sourceEntry = str_replace("\\", "/", substr($resource->getPathname(), strlen($sourceRoot) + 1));
+			$found[$sourceEntry] = $resource;
+		}
+		return $found;
 	}
 
 	/**

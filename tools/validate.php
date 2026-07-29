@@ -41,9 +41,10 @@ $registrarSource = file_get_contents($root . "/src/NhanAZ/CustomToast/ResourcePa
 if(
 	$registrarSource === false ||
 	!str_contains($registrarSource, '"CustomToast/"') ||
-	!str_contains($registrarSource, '"devtools-virions/CustomToast/CustomToast/"')
+	!str_contains($registrarSource, '"devtools-virions/CustomToast/CustomToast/"') ||
+	!str_contains($registrarSource, 'dirname(__DIR__, 3) . "/resources/CustomToast"')
 ){
-	throw new RuntimeException("ResourcePackRegistrar must support direct and DevTools-shaded resource paths");
+	throw new RuntimeException("ResourcePackRegistrar must support DevTools development and shaded resource paths");
 }
 if(is_dir($root . "/resources/CustomToast/sounds")){
 	throw new RuntimeException("Custom sound assets must not be bundled; random.toast is provided by the Bedrock client");
