@@ -37,6 +37,14 @@ $customToastSource = file_get_contents($root . "/src/NhanAZ/CustomToast/CustomTo
 if($customToastSource === false || !str_contains($customToastSource, 'private const SOUND_NAME = "random.toast";')){
 	throw new RuntimeException("CustomToast must use the built-in random.toast sound event");
 }
+$registrarSource = file_get_contents($root . "/src/NhanAZ/CustomToast/ResourcePackRegistrar.php");
+if(
+	$registrarSource === false ||
+	!str_contains($registrarSource, '"CustomToast/"') ||
+	!str_contains($registrarSource, '"devtools-virions/CustomToast/CustomToast/"')
+){
+	throw new RuntimeException("ResourcePackRegistrar must support direct and DevTools-shaded resource paths");
+}
 if(is_dir($root . "/resources/CustomToast/sounds")){
 	throw new RuntimeException("Custom sound assets must not be bundled; random.toast is provided by the Bedrock client");
 }

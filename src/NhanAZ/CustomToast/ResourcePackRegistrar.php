@@ -27,7 +27,10 @@ use const DIRECTORY_SEPARATOR;
 
 /** @internal */
 final class ResourcePackRegistrar{
-	private const RESOURCE_PREFIX = "CustomToast/";
+	private const RESOURCE_PREFIXES = [
+		"CustomToast/",
+		"devtools-virions/CustomToast/CustomToast/"
+	];
 	private const PACK_FILE = "CustomToast.mcpack";
 	private const SOURCE_ONLY_ENTRIES = [
 		"textures/ui/custom_toast/background_round.png",
@@ -154,11 +157,17 @@ final class ResourcePackRegistrar{
 		/** @var array<string, \SplFileInfo> $resources */
 		$resources = $this->plugin->getResources();
 		foreach(Utils::stringifyKeys($resources) as $resourceKey => $resource){
-			if(!str_starts_with($resourceKey, self::RESOURCE_PREFIX)){
+			$sourceEntry = null;
+			foreach(self::RESOURCE_PREFIXES as $resourcePrefix){
+				if(str_starts_with($resourceKey, $resourcePrefix)){
+					$sourceEntry = substr($resourceKey, strlen($resourcePrefix));
+					break;
+				}
+			}
+			if($sourceEntry === null){
 				continue;
 			}
 
-			$sourceEntry = substr($resourceKey, strlen(self::RESOURCE_PREFIX));
 			$entry = self::archiveEntryFor($sourceEntry);
 			if($entry === null){
 				continue;

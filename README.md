@@ -16,7 +16,7 @@ This repository is the canonical documentation and source for the library. The c
 - Vietnamese and other UTF-8 text is preserved safely.
 - Minecraft's built-in vanilla toast sound can play with each notification.
 - Multiple toasts can be queued by the Bedrock UI.
-- Multiple plugins can safely share one server-side CustomToast runtime.
+- Multiple unshaded consumers can safely share one server-side CustomToast runtime.
 - The resource pack is compiled and registered automatically at server startup.
 - No command syntax or plugin-specific behavior is forced on the library user.
 
@@ -31,7 +31,23 @@ This repository is the canonical documentation and source for the library. The c
 
 CustomToast contains both PHP source and resource-pack files. Your build must inject both folders into the final plugin PHAR.
 
-With Pockgin CLI, add this `pockgin.libs.yml` to the plugin that uses CustomToast:
+### DevTools
+
+[NhanAZ/DevTools](https://github.com/NhanAZ/DevTools) can discover CustomToast as a virion, shade its PHP namespace into the host plugin, and retain its resource pack under the protected virion resource directory. Add this to the host plugin's `devtools.yml`:
+
+```yaml
+virions:
+  - name: CustomToast
+    version: ^1.0.0
+```
+
+Check out this repository at an exact commit into `virions/CustomToast`, then run `NhanAZ/DevTools@v0.1.0`. The complete tested implementation is the companion [CustomToastExample workflow](https://github.com/NhanAZ-Plugins/CustomToastExample/blob/main/.github/workflows/build.yml).
+
+DevTools gives every host plugin a private shaded namespace. A single DevTools-built CustomToast consumer is supported, including `CustomToastExample`. Do not run multiple independently shaded CustomToast consumers on the same server: they cannot share the static runtime coordinator and would compete for the same resource-pack UUID. Use an unshaded build when several plugins must share CustomToast.
+
+### Pockgin CLI
+
+For an unshaded build, add this `pockgin.libs.yml` to the plugin that uses CustomToast:
 
 ```yaml
 libs:
@@ -259,7 +275,7 @@ When several plugins use CustomToast, `close()` releases only that plugin's refe
 
 ## Using CustomToast from multiple plugins
 
-Every plugin may inject the same `CustomToast` source and call `CustomToast::create()` independently:
+Every plugin may inject the same unshaded `CustomToast` source and call `CustomToast::create()` independently:
 
 ```php
 protected function onEnable() : void{
@@ -279,7 +295,7 @@ The shared runtime applies these rules:
 4. Closing one consumer does not interrupt the others.
 5. The final `close()` restores the original required-pack setting, unregisters the pack, and removes the generated `.mcpack`.
 
-All consumers should inject the same CustomToast release and the same presentation assets. The first plugin enabled by PocketMine-MP supplies the active pack file. If different plugins bundle different themes under the same pack UUID, startup order would decide which theme players receive.
+All consumers should inject the same CustomToast release and the same presentation assets. The first plugin enabled by PocketMine-MP supplies the active pack file. If different plugins bundle different themes under the same pack UUID, startup order would decide which theme players receive. This shared runtime requires the original `NhanAZ\CustomToast` namespace and does not apply across separately shaded DevTools builds.
 
 ## Toast types
 
@@ -364,7 +380,7 @@ See [ASSETS.md](ASSETS.md) before distributing the bundled presentation assets.
 
 - Bedrock JSON UI files modify global HUD and chat controls. Another resource pack that replaces the same controls can override CustomToast or be overridden by it.
 - CustomToast places its pack at highest priority to make its bindings reliable.
-- Multiple plugins are supported when they inject the unchanged `NhanAZ\CustomToast` namespace. Namespace-shaded or independently renamed copies cannot share the runtime coordinator and are unsupported.
+- Multiple plugins are supported when they inject the unchanged `NhanAZ\CustomToast` namespace. One private DevTools-shaded consumer is supported, but separately shaded copies cannot share the runtime coordinator.
 - Keep every consumer on the same CustomToast release and resource-pack theme.
 - A resource-pack-only change may be cached by the client. During design work, change the pack UUID or clear the client's cached server packs when necessary. Keep release versions at `1.0.0` unless the project owner explicitly requests a version change.
 
