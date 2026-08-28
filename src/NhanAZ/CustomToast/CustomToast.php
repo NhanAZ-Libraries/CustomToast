@@ -75,6 +75,7 @@ final class CustomToast{
 				$position->getZ(),
 				1.0,
 				1.0,
+				0,
 				null
 			));
 		}
