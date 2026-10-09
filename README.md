@@ -43,7 +43,7 @@ virions:
     version: ^1.0.1
 ```
 
-Check out this repository at an exact commit into `virions/CustomToast`, then run [DevTools 1.0.1](https://github.com/NhanAZ/DevTools/releases/tag/v1.0.1). The companion [CustomToastExample workflow](https://github.com/NhanAZ-Plugins/CustomToastExample/blob/main/.github/workflows/build.yml) shows the complete consumer build.
+Check out this repository at an exact commit into `virions/CustomToast`, then build with [DevTools](https://github.com/NhanAZ/DevTools). The companion [CustomToastExample workflow](https://github.com/NhanAZ-Plugins/CustomToastExample/blob/main/.github/workflows/build.yml) pins the builder and shows the complete consumer build.
 
 For folder-plugin development, use this server layout:
 

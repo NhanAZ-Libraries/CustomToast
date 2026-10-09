@@ -1,4 +1,4 @@
-name: Validate
+name: Validate CustomToast virion and assets
 
 on:
   push:
