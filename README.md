@@ -24,7 +24,7 @@ This repository is the canonical documentation and source for the library. The c
 
 ## Requirements
 
-- Axolotl-PM 5.49.1 is the pinned development and validation target. The manifest declares the 5 API family.
+- The virion declares Axolotl-PM plugin API 5.0.0. The exact tested server revision is in `composer.lock` and the [CI workflow](.github/workflows/ci.yml). Other Axolotl-PM 5.x revisions have not been independently verified.
 - PHP 8.1 or newer
 - PHP extensions `mbstring` and `zip`
 - A Bedrock client that accepts the server resource pack. Visual behavior still needs a client-side test.
@@ -390,7 +390,7 @@ Use the current resource pack. Older builds allowed Bedrock JSON UI to interpret
 
 ## Development and testing
 
-Install the locked development dependencies with PHP 8.1 or newer and the `mbstring`, `zip`, and `gd` extensions. The CI workflow uses a pinned Axolotl-PM 5.49.1 source dependency.
+Install the locked development dependencies with PHP 8.1 or newer and the `mbstring`, `zip`, and `gd` extensions. The CI workflow uses the Axolotl-PM source revision recorded in `composer.lock`.
 
 ```sh
 composer install --no-interaction --prefer-dist --no-progress --no-scripts --no-plugins
