@@ -1,14 +1,16 @@
 # CustomToast
 
-CustomToast is a PocketMine-MP virion for displaying compact, animated toast notifications in the top-right corner of Minecraft: Bedrock Edition.
+CustomToast is an Axolotl-PM virion for displaying compact, animated toast notifications in the top-right corner of Minecraft: Bedrock Edition.
 
-It gives plugin authors one small PHP API while handling the less friendly parts internally: resource-pack registration, UI routing, UTF-8-safe payloads, the network text packet, and the optional vanilla toast sound.
+[![Validate](https://github.com/NhanAZ-Libraries/CustomToast/actions/workflows/ci.yml/badge.svg)](https://github.com/NhanAZ-Libraries/CustomToast/actions/workflows/ci.yml)
+
+It gives plugin authors one small PHP API. The library handles resource-pack registration, UI routing, UTF-8-safe payloads, the network text packet, and the optional vanilla toast sound.
 
 This repository is the canonical documentation and source for the library. The companion [CustomToastExample](https://github.com/NhanAZ-Plugins/CustomToastExample) repository is only a runnable demonstration of the API.
 
 ## Features
 
-- Four built-in styles: info, success, warning, and error.
+- Four built-in styles for info, success, warning, and error messages.
 - Rounded or square corners, configurable globally or per toast.
 - All 29 current Minecraft Bedrock formatting-code colors, plus automatic and neutral helpers.
 - Built-in image icons, no icon, or a fixed-width three-byte Unicode glyph.
@@ -22,10 +24,10 @@ This repository is the canonical documentation and source for the library. The c
 
 ## Requirements
 
-- PocketMine-MP 5.x
+- Axolotl-PM 5.49.1 is the pinned development and validation target. The manifest declares the 5 API family.
 - PHP 8.1 or newer
 - PHP extensions `mbstring` and `zip`
-- A Bedrock client that accepts the server resource pack
+- A Bedrock client that accepts the server resource pack. Visual behavior still needs a client-side test.
 
 ## Installation in a plugin build
 
@@ -38,10 +40,10 @@ CustomToast contains both PHP source and resource-pack files. Your build must in
 ```yaml
 virions:
   - name: CustomToast
-    version: ^1.0.0
+    version: ^1.0.1
 ```
 
-Check out this repository at an exact commit into `virions/CustomToast`, then run `NhanAZ/DevTools@v1.0.0`. The complete tested implementation is the companion [CustomToastExample workflow](https://github.com/NhanAZ-Plugins/CustomToastExample/blob/main/.github/workflows/build.yml).
+Check out this repository at an exact commit into `virions/CustomToast`, then run [DevTools 1.0.1](https://github.com/NhanAZ/DevTools/releases/tag/v1.0.1). The companion [CustomToastExample workflow](https://github.com/NhanAZ-Plugins/CustomToastExample/blob/main/.github/workflows/build.yml) shows the complete consumer build.
 
 For folder-plugin development, use this server layout:
 
@@ -61,7 +63,7 @@ DevTools loads one shared development copy of the PHP classes. CustomToast reads
 
 Production builds are standalone. DevTools shades CustomToast into a private namespace and stores its assets below the protected virion resource directory. A single DevTools-built CustomToast consumer is supported, including `CustomToastExample`. Do not run multiple independently shaded CustomToast consumers on the same server: they cannot share the static runtime coordinator and would compete for the same resource-pack UUID.
 
-Do not install this repository directly in the PocketMine-MP `plugins` folder. It is a library, not a standalone plugin. Use [CustomToastExample](https://github.com/NhanAZ-Plugins/CustomToastExample) if you want a ready-to-run demonstration.
+Do not install this repository directly in the Axolotl-PM `plugins` folder. It is a library, not a standalone plugin. Use [CustomToastExample](https://github.com/NhanAZ-Plugins/CustomToastExample) for a runnable demonstration.
 
 ## Quick start
 
@@ -222,7 +224,7 @@ $customToast->send(
 ): void
 ```
 
-Pass `null` as the title for a message-only toast. Pass an empty message with a non-empty title for a title-only toast. The five optional final arguments override the default sound, corner, color, image-icon, and glyph settings for that one toast. Pass `false` as `showIcon` to remove the image and its reserved space. Pass one three-byte Unicode code point as `glyph` to replace the image while keeping icon spacing; a glyph takes priority over `showIcon`.
+Pass `null` as the title for a message-only toast. Pass an empty message with a non-empty title for a title-only toast. The five optional final arguments override the default sound, corner, color, image-icon, and glyph settings for that one toast. Pass `false` as `showIcon` to remove the image and its reserved space. Pass one three-byte Unicode code point as `glyph` to replace the image while keeping icon spacing. A glyph takes priority over `showIcon`.
 
 The title is limited to 96 UTF-8 bytes, remains a single line, and is automatically wrapped in `§l` and `§r` so it renders bold without leaking formatting into the message. Newline and tab characters in the title are converted to spaces. Message line breaks and formatting codes are preserved, including repeated line breaks that create an empty line. Tabs in the message are converted to spaces.
 
@@ -275,7 +277,7 @@ The shared runtime applies these rules:
 4. Closing one consumer does not interrupt the others.
 5. The final `close()` restores the original required-pack setting, unregisters the pack, and removes the generated `.mcpack`.
 
-All development consumers use the same CustomToast source and presentation assets loaded by DevTools. The first plugin enabled by PocketMine-MP supplies the active pack file. This shared development runtime does not apply across separately shaded production PHARs.
+All development consumers use the same CustomToast source and presentation assets loaded by DevTools. The first plugin enabled by Axolotl-PM supplies the active pack file. This shared development runtime does not apply across separately shaded production PHARs.
 
 ## Toast types
 
@@ -333,7 +335,7 @@ Use the `cornerStyle` argument of `create()` to select a plugin default. Use the
 
 ## How it works
 
-At startup, CustomToast collects the injected `resources/CustomToast` directory, creates `CustomToast.mcpack` in the host plugin's data directory, and places that pack at the top of PocketMine-MP's resource-pack stack.
+At startup, CustomToast collects the injected `resources/CustomToast` directory, creates `CustomToast.mcpack` in the host plugin's data directory, and places that pack at the top of Axolotl-PM's resource-pack stack.
 
 When `send()` is called, the library sends a system `TextPacket` containing a private marker, a one-character presentation code, corner and color fields, an optional fixed-width glyph, and the display text. The custom HUD consumes marked messages, hides them from normal chat, builds the matching texture path, selects an image, glyph, or compact text-only layout, and runs the enter/wait/exit animation. If sound is enabled, a `PlaySoundPacket` for Minecraft Bedrock's built-in `random.toast` event is sent immediately before the text packet. No custom audio file or sound definition is bundled.
 
@@ -352,7 +354,7 @@ resources/CustomToast/textures/ui/custom_toast/icon_warning.png
 resources/CustomToast/textures/ui/custom_toast/icon_error.png
 ```
 
-There are 58 active background files: 29 official color names for each corner style. For example, `background_round_green.png` is rounded green and `background_square_material_resin.png` is square Resin. All are 12x12 nine-slice textures with a four-pixel slice. `background_round.png` and `background_square.png` are the neutral variants. During pack compilation, the readable names are mapped to compact internal aliases used by JSON UI. The notification sound comes from the Bedrock client through the built-in `random.toast` event, so visual themes do not need to ship or license an audio file.
+There are 58 active background files, with 29 official color names for each corner style. For example, `background_round_green.png` is rounded green and `background_square_material_resin.png` is square Resin. All are 12x12 nine-slice textures with a four-pixel slice. `background_round.png` and `background_square.png` are the neutral variants. During pack compilation, the readable names are mapped to compact internal aliases used by JSON UI. The notification sound comes from the Bedrock client through the built-in `random.toast` event, so visual themes do not need to ship or license an audio file.
 
 See [ASSETS.md](ASSETS.md) before distributing the bundled presentation assets.
 
@@ -362,7 +364,7 @@ See [ASSETS.md](ASSETS.md) before distributing the bundled presentation assets.
 - CustomToast places its pack at highest priority to make its bindings reliable.
 - Multiple folder plugins are supported when DevTools loads one shared development virion. One private DevTools-shaded production consumer is supported, but separately shaded PHARs cannot share the runtime coordinator.
 - Keep every consumer on the same CustomToast release and resource-pack theme.
-- A resource-pack-only change may be cached by the client. During design work, change the pack UUID or clear the client's cached server packs when necessary. Keep release versions at `1.0.0` unless the project owner explicitly requests a version change.
+- A resource-pack change may be cached by the client. Version 1.0.1 advances the pack version while keeping its UUID. During design work, clear the client's cached server packs when necessary.
 
 ## Troubleshooting
 
@@ -386,6 +388,20 @@ The library API accepts title and message as separate arguments. Converting a co
 
 Use the current resource pack. Older builds allowed Bedrock JSON UI to interpret number-leading text as a numeric expression. The current binding forces the extracted payload back to a string, so both `1 reward` and `Reward 1` render normally.
 
+## Development and testing
+
+Install the locked development dependencies with PHP 8.1 or newer and the `mbstring`, `zip`, and `gd` extensions. The CI workflow uses a pinned Axolotl-PM 5.49.1 source dependency.
+
+```sh
+composer install --no-interaction --prefer-dist --no-progress --no-scripts --no-plugins
+composer validate --strict
+composer lint
+composer phpstan
+composer test
+```
+
+The resource test checks required files, JSON, image dimensions and pixel palettes. PHPStan runs at level max. A consumer PHAR and server runtime test are separate gates. Client rendering still needs a Bedrock client and an accepted resource pack.
+
 ## License
 
-The PHP source is licensed under LGPL-3.0-or-later. Presentation assets are handled separately; read [ASSETS.md](ASSETS.md).
+The PHP source is licensed under LGPL-3.0-or-later. Presentation assets are handled separately in [ASSETS.md](ASSETS.md). The [notice](NOTICE.md) travels with DevTools-built consumer PHARs. See the [changelog](CHANGELOG.md) for version changes and rollback guidance. Report issues on [GitHub](https://github.com/NhanAZ-Libraries/CustomToast/issues) or ask for community support through [NhanAZ Discord](https://discord.gg/j2X83ujT6c).

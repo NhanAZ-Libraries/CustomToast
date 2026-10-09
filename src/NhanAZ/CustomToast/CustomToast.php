@@ -76,6 +76,8 @@ final class CustomToast{
 				1.0,
 				1.0,
 				0,
+				false,
+				null,
 				null
 			));
 		}

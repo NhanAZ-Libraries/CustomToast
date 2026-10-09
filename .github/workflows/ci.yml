@@ -9,22 +9,46 @@ on:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - name: Check out CustomToast
+        uses: actions/checkout@v7.0.1
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Check out Axolotl PHP setup helper
+        uses: actions/checkout@v7.0.1
         with:
-          php-version: "8.2"
-          extensions: mbstring, zip
+          repository: axolotl-pm/setup-php-action
+          ref: b8c3f9add4f2ad4a5e2624a1112aba899ee8db0e
+          path: .devtools-dependencies/setup-php-action
+          persist-credentials: false
+
+      - name: Set up Axolotl PHP on Node.js 24
+        shell: bash
+        env:
+          INPUT_PHP-VERSION: "8.1"
+          INPUT_PM-VERSION-MAJOR: "5"
+          INPUT_INSTALL-PATH: ./.php-bin
+        run: node "$GITHUB_WORKSPACE/.devtools-dependencies/setup-php-action/dist/index.js"
+
+      - name: Check PHP extensions for complete asset validation
+        run: php -r 'foreach (["gd", "mbstring", "zip"] as $extension) { if (!extension_loaded($extension)) { fwrite(STDERR, "Missing $extension\n"); exit(1); } }'
 
       - name: Validate Composer metadata
-        run: composer validate --strict --no-check-publish
+        run: composer validate --strict
+
+      - name: Install locked development dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts --no-plugins
+
+      - name: Check source style
+        run: composer lint
+
+      - name: Analyze source at PHPStan level max
+        run: composer phpstan
 
       - name: Lint PHP sources
         run: find src tools -name '*.php' -print0 | xargs -0 -n1 php -l
 
       - name: Validate virion and resource pack
-        run: php tools/validate.php
+        run: composer test

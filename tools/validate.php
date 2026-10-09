@@ -7,6 +7,7 @@ $requiredFiles = [
 	"virion.yml",
 	"composer.json",
 	"LICENSE",
+	"NOTICE.md",
 	"README.md",
 	"ASSETS.md",
 	"src/NhanAZ/CustomToast/CustomToast.php",
@@ -56,16 +57,16 @@ foreach(["background.png", "background.json"] as $obsoleteBackground){
 }
 
 $virion = file_get_contents($root . "/virion.yml");
-if($virion === false || preg_match('/^version:[ \t]*1\.0\.0\r?$/m', $virion) !== 1){
-	throw new RuntimeException("virion.yml must use version 1.0.0");
+if($virion === false || preg_match('/^version:[ \t]*1\.0\.1\r?$/m', $virion) !== 1){
+	throw new RuntimeException("virion.yml must use version 1.0.1");
 }
 
 $manifest = decodeJson($root . "/resources/CustomToast/manifest.json");
-if(($manifest["header"]["version"] ?? null) !== [1, 0, 0]){
-	throw new RuntimeException("Resource-pack header version must be 1.0.0");
+if(($manifest["header"]["version"] ?? null) !== [1, 0, 1]){
+	throw new RuntimeException("Resource-pack header version must be 1.0.1");
 }
-if(($manifest["modules"][0]["version"] ?? null) !== [1, 0, 0]){
-	throw new RuntimeException("Resource-pack module version must be 1.0.0");
+if(($manifest["modules"][0]["version"] ?? null) !== [1, 0, 1]){
+	throw new RuntimeException("Resource-pack module version must be 1.0.1");
 }
 if(($manifest["header"]["uuid"] ?? null) === ($manifest["modules"][0]["uuid"] ?? null)){
 	throw new RuntimeException("Resource-pack header and module UUIDs must be different");

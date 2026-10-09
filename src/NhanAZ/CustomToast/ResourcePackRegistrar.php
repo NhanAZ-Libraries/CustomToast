@@ -7,7 +7,6 @@ namespace NhanAZ\CustomToast;
 use FilesystemIterator;
 use pocketmine\plugin\PluginBase;
 use pocketmine\resourcepacks\ZippedResourcePack;
-use pocketmine\utils\Utils;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
@@ -18,14 +17,14 @@ use function array_unshift;
 use function array_values;
 use function count;
 use function dirname;
-use function file_get_contents;
 use function file_exists;
+use function file_get_contents;
 use function in_array;
 use function is_dir;
 use function mkdir;
 use function rtrim;
-use function str_starts_with;
 use function str_replace;
+use function str_starts_with;
 use function strlen;
 use function substr;
 use function unlink;
@@ -175,12 +174,12 @@ final class ResourcePackRegistrar{
 			if($contents === false){
 				$zip->close();
 				@unlink($packPath);
-				throw new RuntimeException("Could not read bundled resource: " . $resourceKey);
+				throw new RuntimeException("Could not read bundled resource: " . $sourceEntry);
 			}
 			if(!$zip->addFromString($entry, $contents)){
 				$zip->close();
 				@unlink($packPath);
-				throw new RuntimeException("Could not add bundled resource to the pack: " . $resourceKey);
+				throw new RuntimeException("Could not add bundled resource to the pack: " . $sourceEntry);
 			}
 			$entries[] = $entry;
 		}
@@ -215,9 +214,8 @@ final class ResourcePackRegistrar{
 	/** @return array<string, SplFileInfo> */
 	private function resourceFiles() : array{
 		$found = [];
-		/** @var array<string, SplFileInfo> $pluginResources */
-		$pluginResources = $this->plugin->getResources();
-		foreach(Utils::stringifyKeys($pluginResources) as $resourceKey => $resource){
+		foreach($this->plugin->getResources() as $resourceKey => $resource){
+			$resourceKey = (string) $resourceKey;
 			foreach(self::RESOURCE_PREFIXES as $resourcePrefix){
 				if(!str_starts_with($resourceKey, $resourcePrefix)){
 					continue;
@@ -242,6 +240,9 @@ final class ResourcePackRegistrar{
 			new RecursiveDirectoryIterator($sourceRoot, FilesystemIterator::SKIP_DOTS)
 		);
 		foreach($iterator as $resource){
+			if(!$resource instanceof SplFileInfo){
+				throw new RuntimeException("Unexpected CustomToast resource entry");
+			}
 			if($resource->isLink()){
 				throw new RuntimeException("CustomToast development resources may not contain symbolic links: " . $resource->getPathname());
 			}

@@ -1,4 +1,6 @@
-/composer.lock
 /vendor/
+.devtools-dependencies/
+.php-bin/
+.php-cs-fixer.cache
 /.phpunit.result.cache
 /.phpstan.cache
