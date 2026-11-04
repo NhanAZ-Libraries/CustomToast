@@ -1,12 +1,15 @@
 # CustomToast
 
-CustomToast is an Axolotl-PM virion for displaying compact, animated toast notifications in the top-right corner of Minecraft: Bedrock Edition.
+Axolotl-PM virion for custom Bedrock toast notifications with a resource pack
 
-[![Validate](https://github.com/NhanAZ-Libraries/CustomToast/actions/workflows/ci.yml/badge.svg)](https://github.com/NhanAZ-Libraries/CustomToast/actions/workflows/ci.yml)
+[![CI](https://github.com/NhanAZ-Libraries/CustomToast/actions/workflows/ci.yml/badge.svg)](https://github.com/NhanAZ-Libraries/CustomToast/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/NhanAZ-Libraries/CustomToast)](https://github.com/NhanAZ-Libraries/CustomToast/releases/latest)
+[![License](https://img.shields.io/github/license/NhanAZ-Libraries/CustomToast)](https://github.com/NhanAZ-Libraries/CustomToast/blob/main/LICENSE)
+[![Discord](https://img.shields.io/discord/986553214889517088?label=Discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/j2X83ujT6c)
 
-It gives plugin authors one small PHP API. The library handles resource-pack registration, UI routing, UTF-8-safe payloads, the network text packet, and the optional vanilla toast sound.
+## Overview
 
-This repository is the canonical documentation and source for the library. The companion [CustomToastExample](https://github.com/NhanAZ-Plugins/CustomToastExample) repository is only a runnable demonstration of the API.
+This library targets the PocketMine-MP and Axolotl-PM API 5 ecosystem and is maintained under [NhanAZ-Libraries](https://github.com/NhanAZ-Libraries).
 
 ## Features
 
