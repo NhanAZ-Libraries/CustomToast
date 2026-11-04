@@ -8,12 +8,12 @@ The artwork is not covered by the source-code license. Contact the project owner
 
 Project artwork:
 
-- `resources/CustomToast/textures/ui/custom_toast/background_round_*.png`
-- `resources/CustomToast/textures/ui/custom_toast/background_square_*.png`
-- `resources/CustomToast/textures/ui/custom_toast/icon_*.png`
+- `src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/background_round_*.png`
+- `src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/background_square_*.png`
+- `src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/icon_*.png`
 
 Toast audio is not bundled. The library plays Minecraft Bedrock's built-in `random.toast` sound event.
 
 The neutral round and square variants remain in the same directory as the colored backgrounds.
 
-`resources/CustomToast/pack_icon.png` uses the same project icon as CustomEmojis.
+`src/NhanAZ/CustomToast/resources/pack_icon.png` uses the same project icon as CustomEmojis.

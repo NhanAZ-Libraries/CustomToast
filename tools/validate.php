@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__);
+$resourceRoot = $root . "/src/NhanAZ/CustomToast/resources";
 $requiredFiles = [
 	"virion.yml",
 	"composer.json",
@@ -17,15 +18,15 @@ $requiredFiles = [
 	"src/NhanAZ/CustomToast/ToastCornerStyle.php",
 	"src/NhanAZ/CustomToast/ToastPayload.php",
 	"src/NhanAZ/CustomToast/ToastType.php",
-	"resources/CustomToast/manifest.json",
-	"resources/CustomToast/pack_icon.png",
-	"resources/CustomToast/ui/_ui_defs.json",
-	"resources/CustomToast/ui/hud_screen.json",
-	"resources/CustomToast/ui/chat_screen.json",
-	"resources/CustomToast/textures/ui/custom_toast/background_round.png",
-	"resources/CustomToast/textures/ui/custom_toast/background_round.json",
-	"resources/CustomToast/textures/ui/custom_toast/background_square.png",
-	"resources/CustomToast/textures/ui/custom_toast/background_square.json"
+	"src/NhanAZ/CustomToast/resources/manifest.json",
+	"src/NhanAZ/CustomToast/resources/pack_icon.png",
+	"src/NhanAZ/CustomToast/resources/ui/_ui_defs.json",
+	"src/NhanAZ/CustomToast/resources/ui/hud_screen.json",
+	"src/NhanAZ/CustomToast/resources/ui/chat_screen.json",
+	"src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/background_round.png",
+	"src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/background_round.json",
+	"src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/background_square.png",
+	"src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/background_square.json"
 ];
 
 foreach($requiredFiles as $relative){
@@ -43,15 +44,15 @@ if(
 	$registrarSource === false ||
 	!str_contains($registrarSource, '"CustomToast/"') ||
 	!str_contains($registrarSource, '"devtools-virions/CustomToast/CustomToast/"') ||
-	!str_contains($registrarSource, 'dirname(__DIR__, 3) . "/resources/CustomToast"')
+	!str_contains($registrarSource, 'dirname(__DIR__) . "/resources"')
 ){
 	throw new RuntimeException("ResourcePackRegistrar must support DevTools development and shaded resource paths");
 }
-if(is_dir($root . "/resources/CustomToast/sounds")){
+if(is_dir($resourceRoot . "/sounds")){
 	throw new RuntimeException("Custom sound assets must not be bundled; random.toast is provided by the Bedrock client");
 }
 foreach(["background.png", "background.json"] as $obsoleteBackground){
-	if(file_exists($root . "/resources/CustomToast/textures/ui/custom_toast/" . $obsoleteBackground)){
+	if(file_exists($resourceRoot . "/textures/ui/custom_toast/" . $obsoleteBackground)){
 		throw new RuntimeException("Obsolete single-background asset found: " . $obsoleteBackground);
 	}
 }
@@ -61,7 +62,7 @@ if($virion === false || preg_match('/^version:[ \t]*1\.0\.1\r?$/m', $virion) !==
 	throw new RuntimeException("virion.yml must use version 1.0.1");
 }
 
-$manifest = decodeJson($root . "/resources/CustomToast/manifest.json");
+$manifest = decodeJson($resourceRoot . "/manifest.json");
 if(($manifest["header"]["version"] ?? null) !== [1, 0, 1]){
 	throw new RuntimeException("Resource-pack header version must be 1.0.1");
 }
@@ -73,7 +74,7 @@ if(($manifest["header"]["uuid"] ?? null) === ($manifest["modules"][0]["uuid"] ??
 }
 
 $iterator = new RecursiveIteratorIterator(
-	new RecursiveDirectoryIterator($root . "/resources/CustomToast")
+	new RecursiveDirectoryIterator($resourceRoot)
 );
 foreach($iterator as $file){
 	if($file->isFile() && str_ends_with(strtolower($file->getFilename()), ".json")){
@@ -84,12 +85,12 @@ foreach($iterator as $file){
 	}
 }
 
-$iconSize = getimagesize($root . "/resources/CustomToast/pack_icon.png");
+$iconSize = getimagesize($resourceRoot . "/pack_icon.png");
 if($iconSize === false || $iconSize[0] !== 256 || $iconSize[1] !== 256 || $iconSize[2] !== IMAGETYPE_PNG){
 	throw new RuntimeException("pack_icon.png must be a 256x256 PNG");
 }
 foreach(["info", "success", "warning", "error"] as $iconName){
-	$iconPath = $root . "/resources/CustomToast/textures/ui/custom_toast/icon_{$iconName}.png";
+	$iconPath = $resourceRoot . "/textures/ui/custom_toast/icon_{$iconName}.png";
 	$toastIconSize = getimagesize($iconPath);
 	if($toastIconSize === false || $toastIconSize[0] !== 32 || $toastIconSize[1] !== 32 || $toastIconSize[2] !== IMAGETYPE_PNG){
 		throw new RuntimeException("icon_{$iconName}.png must be a 32x32 PNG");
@@ -102,13 +103,13 @@ $forbiddenPrototypeIconHashes = [
 	"error" => "7247782c0376c6068ca95025d3051545ca683f5ecc98caf5778640182c231435"
 ];
 foreach($forbiddenPrototypeIconHashes as $iconName => $forbiddenHash){
-	$iconPath = $root . "/resources/CustomToast/textures/ui/custom_toast/icon_{$iconName}.png";
+	$iconPath = $resourceRoot . "/textures/ui/custom_toast/icon_{$iconName}.png";
 	if(hash_file("sha256", $iconPath) === $forbiddenHash){
 		throw new RuntimeException("A removed prototype icon was reintroduced: icon_{$iconName}.png");
 	}
 }
 foreach(["background_round.png", "background_square.png"] as $backgroundName){
-	$backgroundSize = getimagesize($root . "/resources/CustomToast/textures/ui/custom_toast/" . $backgroundName);
+	$backgroundSize = getimagesize($resourceRoot . "/textures/ui/custom_toast/" . $backgroundName);
 	if($backgroundSize === false || $backgroundSize[0] !== 12 || $backgroundSize[1] !== 12){
 		throw new RuntimeException($backgroundName . " must be a 12x12 PNG");
 	}
@@ -130,14 +131,14 @@ foreach($colors as $index => $color){
 	}
 	foreach(["round", "square"] as $corner){
 		$assetName = "background_{$corner}_{$color->assetName()}.png";
-		$assetPath = $root . "/resources/CustomToast/textures/ui/custom_toast/" . $assetName;
+		$assetPath = $resourceRoot . "/textures/ui/custom_toast/" . $assetName;
 		$assetSize = getimagesize($assetPath);
 		if($assetSize === false || $assetSize[0] !== 12 || $assetSize[1] !== 12 || $assetSize[2] !== IMAGETYPE_PNG){
 			throw new RuntimeException($assetName . " must be a 12x12 PNG");
 		}
 		if(extension_loaded("gd")){
 			assertPalettePixels(
-				$root . "/resources/CustomToast/textures/ui/custom_toast/background_{$corner}.png",
+				$resourceRoot . "/textures/ui/custom_toast/background_{$corner}.png",
 				$assetPath,
 				$color->hex()
 			);
@@ -146,20 +147,20 @@ foreach($colors as $index => $color){
 }
 
 foreach(["background_round_neutral.png", "background_square_neutral.png"] as $legacyNeutralAsset){
-	if(file_exists($root . "/resources/CustomToast/textures/ui/custom_toast/" . $legacyNeutralAsset)){
+	if(file_exists($resourceRoot . "/textures/ui/custom_toast/" . $legacyNeutralAsset)){
 		throw new RuntimeException("Use the official dark_gray asset name instead of " . $legacyNeutralAsset);
 	}
 }
 foreach(["round", "square"] as $corner){
 	foreach($expectedCodes as $code){
 		$legacyCodeAsset = "background_{$corner}_{$code}.png";
-		if(file_exists($root . "/resources/CustomToast/textures/ui/custom_toast/" . $legacyCodeAsset)){
+		if(file_exists($resourceRoot . "/textures/ui/custom_toast/" . $legacyCodeAsset)){
 			throw new RuntimeException("Formatting codes are internal; source asset must use its official name instead of " . $legacyCodeAsset);
 		}
 	}
 }
 
-$hudSource = file_get_contents($root . "/resources/CustomToast/ui/hud_screen.json");
+$hudSource = file_get_contents($resourceRoot . "/ui/hud_screen.json");
 foreach([
 	'"nineslice_size": 4',
 	'"target_property_name": "#color_code"',
@@ -198,7 +199,7 @@ if(
 ){
 	throw new RuntimeException("CustomToast public API must expose backward-compatible image, iconless, and glyph modes");
 }
-$hud = decodeJson($root . "/resources/CustomToast/ui/hud_screen.json");
+$hud = decodeJson($resourceRoot . "/ui/hud_screen.json");
 
 foreach(["custom_toast_variant", "custom_toast_glyph_variant"] as $variantName){
 	$variantBindings = $hud[$variantName]["bindings"] ?? null;

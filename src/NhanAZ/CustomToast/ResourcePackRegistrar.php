@@ -190,7 +190,7 @@ final class ResourcePackRegistrar{
 		}
 		if(count($entries) === 0){
 			@unlink($packPath);
-			throw new RuntimeException("No files were found below resources/CustomToast");
+			throw new RuntimeException("No files were found below the CustomToast source resources directory");
 		}
 		foreach(self::REQUIRED_ENTRIES as $requiredEntry){
 			if(!in_array($requiredEntry, $entries, true)){
@@ -232,7 +232,7 @@ final class ResourcePackRegistrar{
 			return $found;
 		}
 
-		$sourceRoot = dirname(__DIR__, 3) . "/resources/CustomToast";
+		$sourceRoot = dirname(__DIR__) . "/resources";
 		if(!is_dir($sourceRoot)){
 			return [];
 		}

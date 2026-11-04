@@ -55,7 +55,7 @@ server/
 |  `- CustomToast/
 |     |- virion.yml
 |     |- src/
-|     `- resources/CustomToast/
+|     `- src/NhanAZ/CustomToast/resources/
 `- DevTools.phar
 ```
 
@@ -335,7 +335,7 @@ Use the `cornerStyle` argument of `create()` to select a plugin default. Use the
 
 ## How it works
 
-At startup, CustomToast collects the injected `resources/CustomToast` directory, creates `CustomToast.mcpack` in the host plugin's data directory, and places that pack at the top of Axolotl-PM's resource-pack stack.
+At startup, CustomToast collects its injected resource directory, creates `CustomToast.mcpack` in the host plugin's data directory, and places that pack at the top of Axolotl-PM's resource-pack stack.
 
 When `send()` is called, the library sends a system `TextPacket` containing a private marker, a one-character presentation code, corner and color fields, an optional fixed-width glyph, and the display text. The custom HUD consumes marked messages, hides them from normal chat, builds the matching texture path, selects an image, glyph, or compact text-only layout, and runs the enter/wait/exit animation. If sound is enabled, a `PlaySoundPacket` for Minecraft Bedrock's built-in `random.toast` event is sent immediately before the text packet. No custom audio file or sound definition is bundled.
 
@@ -346,12 +346,12 @@ The marker format is an implementation detail. Plugin code should always call th
 You may replace the files below while keeping their paths unchanged:
 
 ```text
-resources/CustomToast/textures/ui/custom_toast/background_round_<official_name>.png
-resources/CustomToast/textures/ui/custom_toast/background_square_<official_name>.png
-resources/CustomToast/textures/ui/custom_toast/icon_info.png
-resources/CustomToast/textures/ui/custom_toast/icon_success.png
-resources/CustomToast/textures/ui/custom_toast/icon_warning.png
-resources/CustomToast/textures/ui/custom_toast/icon_error.png
+src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/background_round_<official_name>.png
+src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/background_square_<official_name>.png
+src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/icon_info.png
+src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/icon_success.png
+src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/icon_warning.png
+src/NhanAZ/CustomToast/resources/textures/ui/custom_toast/icon_error.png
 ```
 
 There are 58 active background files, with 29 official color names for each corner style. For example, `background_round_green.png` is rounded green and `background_square_material_resin.png` is square Resin. All are 12x12 nine-slice textures with a four-pixel slice. `background_round.png` and `background_square.png` are the neutral variants. During pack compilation, the readable names are mapped to compact internal aliases used by JSON UI. The notification sound comes from the Bedrock client through the built-in `random.toast` event, so visual themes do not need to ship or license an audio file.
@@ -372,9 +372,9 @@ See [ASSETS.md](ASSETS.md) before distributing the bundled presentation assets.
 
 The client did not load the CustomToast resource pack, or another pack replaced the chat/HUD bindings. Confirm that the player accepted the pack and test CustomToast at the top of the pack stack.
 
-### `resources/CustomToast` is missing at runtime
+### CustomToast resources are missing at runtime
 
-For development, confirm the source exists at `virions/CustomToast/resources/CustomToast`. For production, rebuild the host plugin with the declared CustomToast virion through DevTools and confirm the PHAR verifier reports the resource pack.
+For development, confirm the source exists at `virions/CustomToast/src/NhanAZ/CustomToast/resources`. For production, rebuild the host plugin with the declared CustomToast virion through DevTools and confirm the PHAR verifier reports the resource pack.
 
 ### Vietnamese text looks broken
 
